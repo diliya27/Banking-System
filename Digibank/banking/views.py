@@ -1,18 +1,24 @@
-
-
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import IntegrityError
 from smtplib import SMTPException
 import uuid
-
 from .models import CustomerProfile
+from django.contrib.auth import authenticate, login
+from .models import  DepositTransaction,TransferHistory
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import razorpay
 
+from django.db.models import Sum
+
+
+
+
+ 
 
 def index(request):
     return render(request, "index.html")
@@ -32,7 +38,7 @@ def send_account_number_email(customer_email, account_number):
     message = f"""Dear Customer,
 
 Your account has been successfully created.
-Your account number is: {account_number}
+Your account number is: {account_number} IFSC CODE:FDRL0001033
 
 Thank you for choosing us!
 """
@@ -124,12 +130,6 @@ def create_account_view(request):
 
     return render(request, "create_account.html")
 
-
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from .models import CustomerProfile
-from django.contrib.auth.models import User
-
 def login_view(request):
     if request.method == "POST":
         account_number = request.POST.get("account_number")
@@ -139,14 +139,12 @@ def login_view(request):
             # Retrieve the user using the account number
             customer = CustomerProfile.objects.get(account_number=account_number)
             user = customer.user  # Get the associated user
-
-            # Authenticate user
             authenticated_user = authenticate(request, username=user.username, password=password)
 
             if authenticated_user is not None:
                 login(request, authenticated_user)
                 messages.success(request, "Login successful!")
-                return redirect("index")  # Redirect to home/dashboard
+                return redirect("user_dashboard")  
             else:
                 messages.error(request, "Invalid password. Please try again.")
 
@@ -160,4 +158,264 @@ def user_dashboard_view(request):
 
 
 
+
+def accounts_page(request):
+    user = request.user
+    account = DepositTransaction.objects.filter(user=user)
+
+    total=DepositTransaction.objects.filter(user=user).aggregate(Sum('amount'))['amount__sum']
+    customer_profile = CustomerProfile.objects.get(user=user)
+
+    context = {
+        "user": user,
+        "account": account,
+        "customer_profile": customer_profile,
+        'total':total
+    }
+
+    return render(request, "accounts.html", context)  
+
+
+    
+def transfer_view(request):
+    return render(request,'transfers.html')
+
+
+
+def deposit_create_view(request):
+    if request.method == "POST":
+        user = request.user
+        amount = request.POST.get("amount")
+        ifsc_code = request.POST.get("ifsc_code")
+        account_number = request.POST.get("account_number")
+
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                return HttpResponse("Invalid deposit amount")
+        except ValueError:
+            return HttpResponse("Invalid amount format")
+
+        amount_in_paise = int(amount * 100)
+
+        # Create the deposit transaction 
+        deposit = DepositTransaction.objects.create(
+            user=user,
+            account_number=account_number,
+            ifsc_code=ifsc_code,
+            amount=amount,
+            status="pending"
+        )
+        deposit.save()
+
+        # Now redirect to the Razorpay order creation view
+        return redirect("create_razorpay_order", deposit_id=deposit.id)
+
+    return render(request, "deposit.html") 
+
+
+
+def create_razorpay_order_view(request, deposit_id):
+    deposit = DepositTransaction.objects.get(id=deposit_id)
+
+    if deposit.status != "pending":
+        return HttpResponse("Invalid deposit status.")
+
+    # Initialize Razorpay client
+    client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))
+    razorpay_order = client.order.create(
+        {"amount": int(deposit.amount * 100), "currency": "INR", "payment_capture": "1"}
+    )
+
+    # Update the deposit with the Razorpay order ID
+    deposit.order_id = razorpay_order["id"]
+    deposit.save()
+
+    # Pass the deposit and Razorpay order details to the template
+    return render(
+        request,
+        "deposit.html",
+        {
+            "deposit": deposit,
+            "razorpay_key": 'rzp_test_mwbtpQAgt0Xjve',
+            "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
+        }
+    )
+    
+
+
+
+# This view will handle the callback from Razorpay after the payment
+@csrf_exempt  # Exempt the CSRF check for this view as Razorpay will send the data via POST
+
+
+def razorpay_callback(request):
+    if request.method == "POST":
+        # Parse the POST data from Razorpay
+        razorpay_payment_id = request.POST.get("razorpay_payment_id")
+        razorpay_order_id = request.POST.get("razorpay_order_id")
+        razorpay_signature = request.POST.get("razorpay_signature")
+
+        try:
+            # Get the deposit transaction
+            deposit = DepositTransaction.objects.get(order_id=razorpay_order_id)
+
+            # Initialize Razorpay client to verify the payment signature
+            client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))  
+
+            # Check the payment signature
+            params_dict = {
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_signature": razorpay_signature,
+            }
+
+            client.utility.verify_payment_signature(params_dict)  # Verify the payment signature
+            
+            # If the signature is valid, update the deposit status to "successful"
+            deposit.status = "successful"
+            deposit.save()
+
+            return redirect("transfers")
+
+        except razorpay.errors.SignatureVerificationError:
+            # If the signature verification fails, update the deposit status to "failed"
+            deposit.status = "failed"
+            deposit.save()
+            return HttpResponse("Payment verification failed")
+
+    return HttpResponse("Invalid request method")
+
+
+
+
+def account_transfer_view(request):
+    if request.method == "POST":
+        receiver_bank_name = request.POST.get("receiver_bank_name")
+        receiver_account = request.POST.get("receiver_account")
+        receiver_name = request.POST.get("receiver_name")
+        ifsc_code = request.POST.get("ifsc_code")
+        amount = request.POST.get("amount")
+
+        # Debugging: Check received values
+        print(f"Receiver Account: {receiver_account}")
+
+        # Validate required fields
+        if not receiver_bank_name or not receiver_account or not receiver_name or not ifsc_code or not amount:
+            return HttpResponse("All fields are required", status=400)
+
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                return HttpResponse("Invalid Transfer Amount", status=400)
+        except ValueError:
+            return HttpResponse("Invalid amount format", status=400)
+
+        amount_in_paise = int(amount * 100)
+
+        # Save transfer history
+        transfer = TransferHistory.objects.create(
+            receiver_bank_name=receiver_bank_name,
+            receiver_account=receiver_account,
+            receiver_name=receiver_name,
+            ifsc_code=ifsc_code,
+            amount=amount_in_paise,  # Ensure amount is stored
+        )
+
+        return redirect("create_razorpay_order", transfer_id=transfer.id)
+
+    return render(request, "account_transfer.html")
+
+
+
+
+
+
+
+   
+
+
+def view_statement(request):
+    return render(request,'view_statement.html')
+
+
+
+
+    
+
+
+
+
+
+
+      
+      
+
+
+
+# def transaction_history(request):
+#     user = request.user
+#     transactions = TransactionHistory.objects.filter(user=user)
+
+#     return render(request, "transactions.html", {"transactions": transactions})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def account_details(request):
+#     if request.method != "POST":
+#         user_id = request.user.id
+#         forms=TransactionHistoryForm
+#         transactions = TransactionHistory.objects.filter(user_id=user_id)
+#         return render(request, 'account.html', {'data': transactions,'forms':forms})
+#     if request.method == "POST":
+#         form = TransactionHistoryForm(request.POST)  
+#         if form.is_valid():
+#             transaction_type = form.cleaned_data["transaction_type"]
+#             amount = form.cleaned_data["amount"]
+
+           
+#             if amount <= 0:
+#                 return JsonResponse({"error": "Amount must be greater than zero"}, status=400)
+#             if transaction_type == "Deposit":
+#                 account.balance += amount
+#             elif transaction_type == "Withdrawal":
+#                 if amount > account.balance:
+#                     return JsonResponse({"error": "Insufficient balance"}, status=400)
+#                 account.balance -= amount
+#             else:
+#                 return JsonResponse({"error": "Invalid transaction type"}, status=400)
+
+            
+#             account.save()
+
+#             TransactionHistory.objects.create(
+#                 user=User,
+#                 transaction_type=transaction_type,
+#                 amount=amount,
+#                 balance_after_transaction=account.balance
+#             )
+
+#             return JsonResponse({"message": "Transaction successful"}, status=200) 
+    
+#     return render(request, 'account.html', {
+#         'balance': account.balance,
+#         'data': transactions,
+#         'form': form  
+#     })
+
+from django.views.generic import View
+class etc(View):
+    def get(self,request):
+        return render(request,'etc.html')
 

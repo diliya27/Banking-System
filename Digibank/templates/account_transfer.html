@@ -1,0 +1,12 @@
+
+{% extends 'dashboard_user.html' %}
+{% load static %}
+{% block content%}
+
+    {% include 'transfer.html' %}  <!-- Include the deposit form -->
+    
+    {% if deposit %}
+        {% include 'razorpay_payment_script.html' %}  <!-- Include the Razorpay script only if deposit exists -->
+    {% endif %}
+
+{% endblock content %}

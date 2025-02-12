@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Bank Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    {% block extra_head %}
+      
+    {% endblock extra_head %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --white: #ffffff;
+            --dark: #343a40;
+        }
+
+        body {
+            background-color: var(--background-color);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+         display: flex;
+         flex-direction: column;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--dark);
+            color: var(--white);
+            padding: 2rem 1rem;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .brand span {
+            color: var(--primary-color);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin: 0.8rem 0;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(235, 191, 191, 0.1);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">Bank<span>.</span>Dashboard</div>
+            <ul class="nav-menu">
+                <li class="nav-item {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
+                    <a href="{% url 'user_dashboard' %}" class="text-white">Dashboard</a>
+                </li>
+                <li class="nav-item {% if request.resolver_match.url_name == 'accounts' %}active{% endif %}">
+                    <a href="{% url 'accounts' %}" class="text-white">Accounts</a>
+                </li>
+                <li class="nav-item {% if request.resolver_match.url_name == 'transfers' %}active{% endif %}">
+                    <a href="{% url 'transfers' %}" class="text-white">Transfers</a>
+                </li>
+                <li class="nav-item ">
+                    <a href="" class="text-white">Bills</a>
+                </li>
+                <li class="nav-item ">
+                    <a href="" class="text-white">Loans</a>
+                </li>
+                <li class="nav-item">
+                    <a href="" class="text-white">Credit Score</a>
+                </li>
+                <li class="nav-item ">
+                    <a href="" class="text-white">Support</a>
+                </li>
+                <li class="nav-item ">
+                    <a href="" class="text-white">Settings</a>
+                </li>
+                <li class="nav-item ">
+                    <a href="" class="text-white">Security</a>
+                </li>
+            </ul>
+            
+            
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYJOSCo9q6NX7R0Qk3zAnpZxj1q0ANNCeJkzxJm9xjJjUohFkrK7X4a2j" crossorigin="anonymous"></script>
+</body>
+</html>

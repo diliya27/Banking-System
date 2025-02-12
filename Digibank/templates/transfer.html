@@ -1,0 +1,170 @@
+
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+   <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8">
+       <div class="mb-6">
+           <h1 class="text-2xl font-bold text-gray-800 mb-2">Transfer Funds</h1>
+           <p class="text-gray-600">Send money to another account securely</p>
+       </div>
+
+       <form method="POST" class="space-y-6">
+           {% csrf_token %}
+
+           <!-- Bank Details Section -->
+           <div class="space-y-2">
+               <label for="bank_name" class="block text-sm font-medium text-gray-700">
+                   Bank Name
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <i class="fas fa-university text-gray-400"></i>
+                   </span>
+                   <input 
+                       type="text" 
+                       id="bank_name" 
+                       name="bank_name" 
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       required
+                       placeholder="Enter bank name"
+                   >
+               </div>
+           </div>
+
+           <!-- Account Number Field -->
+           <div class="space-y-2">
+               <label for="account_number" class="block text-sm font-medium text-gray-700">
+                   Account Number
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <i class="fas fa-hashtag text-gray-400"></i>
+                   </span>
+                   <input 
+                       type="text" 
+                       id="account_number" 
+                       name="account_number" 
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       required
+                       placeholder="Enter account number"
+                       pattern="[0-9]{9,18}"
+                       title="Account number should be between 9 and 18 digits"
+                   >
+               </div>
+           </div>
+
+           <!-- IFSC Code Field -->
+           <div class="space-y-2">
+               <label for="ifsc_code" class="block text-sm font-medium text-gray-700">
+                   IFSC Code
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <i class="fas fa-code text-gray-400"></i>
+                   </span>
+                   <input 
+                       type="text" 
+                       id="ifsc_code" 
+                       name="ifsc_code" 
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       required
+                       placeholder="Enter IFSC code"
+                       pattern="^[A-Z]{4}0[A-Z0-9]{6}$"
+                       title="Please enter a valid IFSC code"
+                   >
+               </div>
+           </div>
+
+           <!-- Receiver Username Field -->
+           <div class="space-y-2">
+               <label for="receiver_username" class="block text-sm font-medium text-gray-700">
+                   Receiver's Name
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <i class="fas fa-user text-gray-400"></i>
+                   </span>
+                   <input 
+                       type="text" 
+                       id="receiver_username" 
+                       name="receiver_username" 
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       required
+                       placeholder="Enter receiver's name"
+                   >
+               </div>
+           </div>
+
+           <!-- Amount Field -->
+           <div class="space-y-2">
+               <label for="amount" class="block text-sm font-medium text-gray-700">
+                   Amount
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <span class="text-gray-500">₹</span>
+                   </span>
+                   <input 
+                       type="number" 
+                       id="amount" 
+                       name="amount" 
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                       required 
+                       min="1" 
+                       step="0.01"
+                       placeholder="Enter amount"
+                   >
+               </div>
+           </div>
+
+           <!-- Transfer Mode Field -->
+           <div class="space-y-2">
+               <label for="transfer_mode" class="block text-sm font-medium text-gray-700">
+                   Transfer Mode
+               </label>
+               <div class="relative">
+                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                       <i class="fas fa-exchange-alt text-gray-400"></i>
+                   </span>
+                   <select 
+                       id="transfer_mode" 
+                       name="transfer_mode"
+                       class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                   >
+                       <option value="UPI">UPI Transfer</option>
+                       <option value="NEFT">NEFT Transfer</option>
+                       <option value="RTGS">RTGS Transfer</option>
+                   </select>
+               </div>
+           </div>
+
+           <!-- Submit Button -->
+           <div class="pt-4">
+               <button 
+                   type="submit"
+                   class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+               >
+                   <i class="fas fa-paper-plane mr-2"></i>
+                   Transfer Funds
+               </button>
+           </div>
+       </form>
+
+       <!-- Transfer limits info -->
+       <div class="mt-6 bg-blue-50 rounded-md p-4">
+           <div class="flex">
+               <div class="flex-shrink-0">
+                   <i class="fas fa-info-circle text-blue-400"></i>
+               </div>
+               <div class="ml-3">
+                   <h3 class="text-sm font-medium text-blue-800">Transfer Limits</h3>
+                   <div class="mt-2 text-sm text-blue-700">
+                       <ul class="list-disc pl-5 space-y-1">
+                           <li>UPI: Up to ₹1,00,000 per transaction</li>
+                           <li>NEFT: No upper limit</li>
+                           <li>RTGS: Minimum ₹2,00,000</li>
+                       </ul>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
