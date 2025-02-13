@@ -66,7 +66,7 @@ class DepositTransaction(models.Model):
         ('failed', 'Failed'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='deposit_user')  
     account_number = models.CharField(max_length=20)  
     ifsc_code = models.CharField(max_length=11)  
     amount = models.DecimalField(max_digits=10, decimal_places=2)  
@@ -99,8 +99,8 @@ class TransferHistory(models.Model):
         ('WIRE', 'Wire Transfer'),
     ]
 
-    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)  
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='received_transfers')  
+    
+    sender = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     receiver_account = models.CharField(max_length=20)  
     receiver_name = models.CharField(max_length=100)  
     receiver_bank_name = models.CharField(max_length=100, blank=True, null=True)
@@ -109,7 +109,7 @@ class TransferHistory(models.Model):
    
     amount = models.DecimalField(max_digits=10, decimal_places=2)  
     currency = models.CharField(max_length=3, default='INR')  
-    transaction_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
     transfer_mode = models.CharField(max_length=10, choices=TRANSFER_MODES, default='UPI')  
 
    
@@ -130,43 +130,7 @@ class TransferHistory(models.Model):
 
 
 
-# class TransferHistory(models.Model):
-#     STATUS_CHOICES = [
-#         ('pending', 'Pending'),
-#         ('success', 'Success'),
-#         ('failed', 'Failed'),
-#     ]
-    
-#     TRANSFER_MODES = [
-#         ('UPI', 'UPI'),
-#         ('NEFT', 'NEFT'),
-#         ('RTGS', 'RTGS'),
-       
-#     ]
 
-#     id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)  
-#     sender = models.ForeignKey(User, on_delete=models.CASCADE)  
-#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  
-#     receiver_account = models.CharField(max_length=20)  
-#     receiver_name = models.CharField(max_length=100) 
-#     ifsc_code = models.CharField(max_length=11, blank=True, null=True)  
-
-#     amount = models.DecimalField(max_digits=10, decimal_places=2) 
-#     currency = models.CharField(max_length=3, default='INR')  
-#     transaction_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
-#     transfer_mode = models.CharField(max_length=10, choices=TRANSFER_MODES, default='Other')  
-    
-#     order_id = models.CharField(max_length=100, unique=True, blank=True, null=True)  
-#     payment_id = models.CharField(max_length=100, blank=True, null=True) 
-#     signature = models.CharField(max_length=255, blank=True, null=True)  
-   
-
-#     remarks = models.TextField(blank=True, null=True)  
-#     created_at = models.DateTimeField(auto_now_add=True) 
-#     updated_at = models.DateTimeField(auto_now=True)  
-
-#     def __str__(self):
-#         return self.amount
 
     
 

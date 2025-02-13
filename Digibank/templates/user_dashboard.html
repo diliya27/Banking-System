@@ -227,6 +227,9 @@
         </div>
         <div class="balance">$24,562.00</div>
         <small>Account: **** **** **** 1234</small>
+        {% if user.is_authenticated %}
+        <h1>{{request.user}}</h1>
+        {% endif %}
     </div>
 
     <!-- Credit Score -->

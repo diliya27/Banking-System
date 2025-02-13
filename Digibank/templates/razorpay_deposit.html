@@ -1,0 +1,34 @@
+
+<form action="http://127.0.0.1:8000/banking/status/{{DepositTransaction.user.username}}" method="POST">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        key: "{{razorpay_key}}",
+        amount: "{{transfer.amount_in_paise}}", 
+        currency: "INR",
+        name: "{{deposit.user.username}}",
+        description: "Test Transaction",
+        image: "https://example.com/your_logo",
+        order_id: "{{deposit.order_id}}",
+        callback_url: "{{callback_url}}",  <!-- This URL is where Razorpay sends payment details -->
+        redirect: true,
+        prefill: {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "8156869615"
+        },
+        notes: {
+            "address": "Razorpay Corporate Office"
+        },
+        theme: {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+    </script>
+    
+    <input type="hidden" custom="Hidden Element" name="hidden">
+</form>
+
+

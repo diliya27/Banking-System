@@ -5,7 +5,7 @@
 
     {% include 'transfer.html' %}  <!-- Include the deposit form -->
     
-    {% if deposit %}
+    {% if transfer %}
         {% include 'razorpay_payment_script.html' %}  <!-- Include the Razorpay script only if deposit exists -->
     {% endif %}
 

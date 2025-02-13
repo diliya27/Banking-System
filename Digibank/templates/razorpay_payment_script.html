@@ -1,58 +1,23 @@
-
-<form action="http://127.0.0.1:8000/banking/status/{{DepositTransaction.user.username}}" method="POST">
+<form action="http://127.0.0.1:8000/banking/status/{{transfer.receiver_name}}" method="POST">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
     var options = {
         key: "{{razorpay_key}}",
-        amount: "{{deposit.amount_in_paise}}", 
+        amount: "{{transfer.amount}}", 
         currency: "INR",
-        name: "{{deposit.user.username}}",
-        description: "Test Transaction",
+        name: "{{transfer.receiver_name}}",
+        description: "Bank Transfer",
         image: "https://example.com/your_logo",
-        order_id: "{{deposit.order_id}}",
-        callback_url: "{{callback_url}}",  <!-- This URL is where Razorpay sends payment details -->
-        redirect: true,
-        prefill: {
-            "name": "Gaurav Kumar",
-            "email": "gaurav.kumar@example.com",
-            "contact": "8156869615"
-        },
-        notes: {
-            "address": "Razorpay Corporate Office"
-        },
-        theme: {
-            "color": "#3399cc"
-        }
-    };
-    var rzp1 = new Razorpay(options);
-    rzp1.open();
-    </script>
-    <input type="hidden" custom="Hidden Element" name="hidden">
-</form>
-
-
-{% comment %} {% extends 'base.html' %}
-{% block content %}
-<form method="POST">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>
-    var options = {
-        key: "{{razorpay_key}}",
-        amount: "{{order.amount}}", 
-        currency: "INR",
-        name: "{{order.name}}",
-        description: "Test Transaction",
-        image: "https://example.com/your_logo",
-        order_id: "{{order.provider_order_id}}",
+        order_id: "{{transfer.order_id}}",
         callback_url: "{{callback_url}}",
         redirect: true,
         prefill: {
-            "name": "Gaurav Kumar",
-            "email": "gaurav.kumar@example.com",
-            "contact": "9999999999"
+            "name": "{{user.username}}",
+            "email": "{{user.email}}",
+            "contact": "{{user.phone_number}}"
         },
         notes: {
-            "address": "Razorpay Corporate Office"
+            "address": "User Bank Transfer"
         },
         theme: {
             "color": "#3399cc"
@@ -63,4 +28,5 @@
     </script>
     <input type="hidden" custom="Hidden Element" name="hidden">
 </form>
-{% endblock %} {% endcomment %}
+  
+   

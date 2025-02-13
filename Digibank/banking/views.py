@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -216,7 +216,10 @@ def deposit_create_view(request):
 
 
 def create_razorpay_order_view(request, deposit_id):
-    deposit = DepositTransaction.objects.get(id=deposit_id)
+    try:
+        deposit = DepositTransaction.objects.get(id=deposit_id)
+    except Exception as e:
+        print(e,'===================')    
 
     if deposit.status != "pending":
         return HttpResponse("Invalid deposit status.")
@@ -232,11 +235,14 @@ def create_razorpay_order_view(request, deposit_id):
     deposit.save()
 
     # Pass the deposit and Razorpay order details to the template
+  
     return render(
         request,
         "deposit.html",
         {
             "deposit": deposit,
+            "razorpay_order_id":deposit.order_id,
+            "razorpay_signature":deposit.signature,
             "razorpay_key": 'rzp_test_mwbtpQAgt0Xjve',
             "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
         }
@@ -246,19 +252,21 @@ def create_razorpay_order_view(request, deposit_id):
 
 
 # This view will handle the callback from Razorpay after the payment
-@csrf_exempt  # Exempt the CSRF check for this view as Razorpay will send the data via POST
-
-
+@csrf_exempt 
 def razorpay_callback(request):
     if request.method == "POST":
         # Parse the POST data from Razorpay
         razorpay_payment_id = request.POST.get("razorpay_payment_id")
         razorpay_order_id = request.POST.get("razorpay_order_id")
         razorpay_signature = request.POST.get("razorpay_signature")
+        print(razorpay_payment_id)
+        print(razorpay_order_id)
+        print(razorpay_signature)
 
         try:
             # Get the deposit transaction
             deposit = DepositTransaction.objects.get(order_id=razorpay_order_id)
+            print(deposit)
 
             # Initialize Razorpay client to verify the payment signature
             client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))  
@@ -288,7 +296,6 @@ def razorpay_callback(request):
 
 
 
-
 def account_transfer_view(request):
     if request.method == "POST":
         receiver_bank_name = request.POST.get("receiver_bank_name")
@@ -297,35 +304,97 @@ def account_transfer_view(request):
         ifsc_code = request.POST.get("ifsc_code")
         amount = request.POST.get("amount")
 
-        # Debugging: Check received values
-        print(f"Receiver Account: {receiver_account}")
-
-        # Validate required fields
-        if not receiver_bank_name or not receiver_account or not receiver_name or not ifsc_code or not amount:
-            return HttpResponse("All fields are required", status=400)
+       
 
         try:
             amount = float(amount)
             if amount <= 0:
-                return HttpResponse("Invalid Transfer Amount", status=400)
+                return HttpResponse("Invalid Transfer Amount")
         except ValueError:
-            return HttpResponse("Invalid amount format", status=400)
+            return HttpResponse("Invalid amount format")
 
-        amount_in_paise = int(amount * 100)
+        amount_in_paise = int(amount * 100)  
 
+       
         # Save transfer history
         transfer = TransferHistory.objects.create(
+            sender=request.user,
             receiver_bank_name=receiver_bank_name,
             receiver_account=receiver_account,
             receiver_name=receiver_name,
             ifsc_code=ifsc_code,
-            amount=amount_in_paise,  # Ensure amount is stored
+            amount=amount_in_paise,
+            status="pending"
         )
 
-        return redirect("create_razorpay_order", transfer_id=transfer.id)
+        return redirect("transfer_razorpay_order", transfer_id=transfer.id)
 
     return render(request, "account_transfer.html")
 
+
+
+
+
+def transfer_razorpay_order_view(request, transfer_id):
+    transfer = TransferHistory.objects.get(id=transfer_id)
+
+    if transfer.status != "pending":
+        return HttpResponse("Invalid transfer status.")
+
+    client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))
+
+    amt = int(transfer.amount)
+    razorpay_order = client.order.create({"amount":amt,"currency": "INR","payment_capture": "1"})
+
+    transfer.order_id = razorpay_order["id"]
+    transfer.save()
+
+    return render(request, "account_transfer.html", {
+        "transfer": transfer,
+        "razorpay_key": 'rzp_test_mwbtpQAgt0Xjve',
+        "callback_url": "http://127.0.0.1:8000/razorpay/callback/tranfer/",
+    })
+
+
+@csrf_exempt 
+def razorpay_transfer_callback(request):
+    if request.method == "POST":
+        razorpay_payment_id = request.POST.get("razorpay_payment_id")
+        razorpay_order_id = request.POST.get("razorpay_order_id")
+        razorpay_signature = request.POST.get("razorpay_signature")
+
+        
+
+        try:
+
+            transfer = TransferHistory.objects.get(order_id=razorpay_order_id)
+            client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))
+
+            params_dict = {
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_signature": razorpay_signature,
+            }
+
+            client.utility.verify_payment_signature(params_dict)
+
+            # Mark transfer as successful
+            transfer.status = "successful"
+            transfer.save()
+
+            return redirect("transfers")
+
+        except razorpay.errors.SignatureVerificationError:
+            transfer.status = "failed"
+            transfer.save()
+            return HttpResponse("Payment verification failed")
+
+    return HttpResponse("Invalid request method")
+
+
+
+
+    
 
 
 

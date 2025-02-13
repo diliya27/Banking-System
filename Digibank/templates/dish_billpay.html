@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dish TV Bill Payment</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-white min-h-screen">
+    <div class="container mx-auto py-8 px-4">
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Header Section -->
+            <div class="bg-purple-600 p-6 text-white">
+                <div class="flex items-center justify-center space-x-3">
+                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold">Dish TV Bill Payment</h1>
+                </div>
+                <p class="text-center mt-2 text-purple-100">Pay your DTH bill securely online</p>
+            </div>
+
+            <!-- Main Form -->
+            <div class="p-6 space-y-6">
+                <form class="space-y-6">
+                    <!-- Customer Details -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Subscriber ID / Smart Card Number</label>
+                            <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:border-purple-500 focus:ring focus:ring-purple-200" placeholder="Enter 11-digit Subscriber ID">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Service Provider</label>
+                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:border-purple-500 focus:ring focus:ring-purple-200">
+                                <option>Dish TV</option>
+                                <option>d2h</option>
+                                <option>Tata Play</option>
+                                <option>Airtel Digital TV</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Package Selection -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Select Recharge Package</h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                                <div>
+                                    <p class="font-medium">Monthly Pack</p>
+                                    <p class="text-sm text-gray-500">All Channels + HD</p>
+                                </div>
+                                <span class="font-bold text-purple-600">₹ 499</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border rounded-lg hover:bg-purple-50 cursor-pointer">
+                                <div>
+                                    <p class="font-medium">Quarterly Pack</p>
+                                    <p class="text-sm text-gray-500">All Channels + HD</p>
+                                </div>
+                                <span class="font-bold text-purple-600">₹ 1,299</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-gray-700">Select Payment Method</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="border rounded-lg p-4 cursor-pointer hover:bg-purple-50 transition-colors">
+                                <div class="flex flex-col items-center space-y-2">
+                                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium">UPI</span>
+                                </div>
+                            </div>
+                            <div class="border rounded-lg p-4 cursor-pointer hover:bg-purple-50 transition-colors">
+                                <div class="flex flex-col items-center space-y-2">
+                                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium">Net Banking</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Offers Section -->
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h3 class="text-sm font-medium text-yellow-800">Available Offers</h3>
+                        <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                            <li>• Get 10% cashback up to ₹100 using UPI</li>
+                            <li>• Extra 2 months free on annual subscription</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pay Button -->
+                    <button type="submit" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                        Proceed to Pay
+                    </button>
+                </form>
+
+                <!-- Security Badge -->
+                <div class="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                    <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>Secure Payment Gateway</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

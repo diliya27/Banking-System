@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Payment Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen">
+    <div class="container mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Bill Payment Services</h1>
+            <p class="text-gray-600">Choose a service to pay your bills securely</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-3xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- KSEB Bill Payment -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:transform hover:scale-105">
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-center mb-2">KSEB Bill</h2>
+                        <p class="text-gray-600 text-sm text-center mb-4">Pay your electricity bills securely</p>
+                        <button onclick="location.href='#'" class="w-full bg-yellow-500 text-white py-3 px-4 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
+                            Pay KSEB Bill
+                        </button>
+                    </div>
+                    <div class="bg-yellow-50 px-6 py-3">
+                        <p class="text-xs text-yellow-800 text-center">Due date reminder available</p>
+                    </div>
+                </div>
+
+                <!-- Water Bill Payment -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:transform hover:scale-105">
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15c1.5 0 3-1.5 3-3s-3-6-3-6-3 4.5-3 6 1.5 3 3 3z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v3m0 3v3"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-center mb-2">Water Bill</h2>
+                        <p class="text-gray-600 text-sm text-center mb-4">Pay your water bills hassle-free</p>
+                        <button onclick="location.href='#'" class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            Pay Water Bill
+                        </button>
+                    </div>
+                    <div class="bg-blue-50 px-6 py-3">
+                        <p class="text-xs text-blue-800 text-center">Online payment available 24/7</p>
+                    </div>
+                </div>
+
+                <!-- Dish TV Bill Payment -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:transform hover:scale-105">
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-center mb-2">Dish TV Bill</h2>
+                        <p class="text-gray-600 text-sm text-center mb-4">Recharge your DTH connection</p>
+                        <button onclick="location.href='#'" class="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                            Pay Dish TV Bill
+                        </button>
+                    </div>
+                    <div class="bg-purple-50 px-6 py-3">
+                        <p class="text-xs text-purple-800 text-center">Instant recharge activation</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Features Section -->
+            <div class="mt-12 grid grid-cols-3 gap-6 text-center">
+                <div class="p-4">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-medium">Secure Payments</h3>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-medium">24/7 Service</h3>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="h-6 w-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-medium">Instant Receipt</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
