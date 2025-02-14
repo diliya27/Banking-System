@@ -1,0 +1,12 @@
+
+{% extends 'dashboard_user.html' %}
+{% load static %}
+{% block content%}
+
+    {% include 'kseb_billpay.html' %}  <!-- Include the deposit form -->
+    
+    {% if kseb %}
+        {% include 'kseb_payment.html' %}  <!-- Include the Razorpay script only if deposit exists -->
+    {% endif %}
+
+{% endblock content %}

@@ -129,60 +129,33 @@ class TransferHistory(models.Model):
 
 
 
+class Kseb_Billpay(models.Model):
 
+    PAYMENT_STATUS=[
+        ('Pending','Pending'),
+        ('Success','Success'),
+        ('Failed','Failed'),
+    ]
+    PAYMENT_MODES=[
+        ('UPI','UPI'),
+        ('Net Banking','Net Banking'),
+        ('Debit Card','Debit Card'),
+        ('Credit Card','Credit Card'),
+    ]
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    consumer_number=models.IntegerField()
+    bill_number=models.IntegerField(unique=True)
+    bill_amt=models.IntegerField()
+    due_date=models.DateField()
+    payment_date=models.DateField(auto_now=True)
+    transaction_id=models.CharField(max_length=50,unique=True)
+    payment_status=models.CharField(max_length=15,choices=PAYMENT_STATUS)
+    mode_of_payment=models.CharField(max_length=20,choices=PAYMENT_MODES)
+    account_number=models.BigIntegerField()
+    bank_name=models.CharField(max_length=50)
 
-
-    
-
-
-
-
-
-
-# class TransactionHistory(models.Model):
-#     TRANSACTION_TYPES = [
-#         ('Deposit', 'Deposit'),
-#         ('Withdrawal', 'Withdrawal'),
-#     ]
-
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
-#     balance_after_transaction = models.DecimalField(max_digits=10, decimal_places=2)
-#     date = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.user.username
-
-
-
-
-# class Kseb_Billpay(models.Model):
-
-#     PAYMENT_STATUS=[
-#         ('Pending','Pending'),
-#         ('Success','Success'),
-#         ('Failed','Failed'),
-#     ]
-#     PAYMENT_MODES=[
-#         ('UPI','UPI'),
-#         ('Net Banking','Net Banking'),
-#         ('Debit Card','Debit Card'),
-#         ('Credit Card','Credit Card'),
-#     ]
-#     user = models.ForeignKey(User,on_delete=models.CASCADE)
-#     consumer_number=models.IntegerField()
-#     bill_number=models.IntegerField(unique=True)
-#     bill_amt=models.IntegerField()
-#     due_date=models.DateField()
-#     payment_date=models.DateField(auto_now=True)
-#     transaction_id=models.CharField(max_length=50,unique=True)
-#     payment_status=models.CharField(max_length=15,choices=PAYMENT_STATUS)
-#     mode_of_payment=models.CharField(max_length=20,choices=PAYMENT_MODES)
-#     account_number=models.BigIntegerField()
-#     bank_name=models.CharField(max_length=50)
-
-#     def __str__(self):
-#         return self.user.username
+    def __str__(self):
+        return self.user.username
 
 # class WaterBillPayment(models.Model):
   

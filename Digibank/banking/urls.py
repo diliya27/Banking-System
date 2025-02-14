@@ -22,14 +22,14 @@ urlpatterns = [
     path("transfer/order/<int:transfer_id>/", transfer_razorpay_order_view, name="transfer_razorpay_order"),
     path("razorpay/callback/tranfer/", razorpay_transfer_callback, name="razorpay_transfer_callback"),
 
-
-   
-    # path('transaction/<int:user_id>/', perform_transaction, name='perform_transaction'),
-
-    # path("deposittable/", views.deposittable_view, name="deposittable"),
-    # path("confirm_deposit/", views.confirm_deposit, name="confirm_deposit"),
-    # path("transaction_history/", views.transaction_history, name="transaction_history"),
     path("transfers/", views.transfer_view, name="transfers"),
+
+    path("billpay",views.billpay,name="billpay"),
+    path("kseb_billpay",views.kseb_pay_view,name='kseb_billpay'),
+    # path("kseb_razorpay",views.)
+    
+    path("dish_billpay",views.dish_billpay_view,name='dish_billpay'),
+    path("water_billpay",views.water_billpay_view,name='water_billpay'),
 
     
 ]

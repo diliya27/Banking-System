@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+{% extends 'dashboard_user.html'%}
+{% load static %}
+
+{% block content %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,7 +31,7 @@
                         </div>
                         <h2 class="text-xl font-semibold text-center mb-2">KSEB Bill</h2>
                         <p class="text-gray-600 text-sm text-center mb-4">Pay your electricity bills securely</p>
-                        <button onclick="location.href='#'" class="w-full bg-yellow-500 text-white py-3 px-4 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
+                        <button onclick="location.href='{% url "kseb_billpay" %}'" class="w-full bg-yellow-500 text-white py-3 px-4 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
                             Pay KSEB Bill
                         </button>
                     </div>
@@ -47,7 +51,7 @@
                         </div>
                         <h2 class="text-xl font-semibold text-center mb-2">Water Bill</h2>
                         <p class="text-gray-600 text-sm text-center mb-4">Pay your water bills hassle-free</p>
-                        <button onclick="location.href='#'" class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        <button onclick="location.href='{% url "water_billpay" %}'" class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                             Pay Water Bill
                         </button>
                     </div>
@@ -66,7 +70,7 @@
                         </div>
                         <h2 class="text-xl font-semibold text-center mb-2">Dish TV Bill</h2>
                         <p class="text-gray-600 text-sm text-center mb-4">Recharge your DTH connection</p>
-                        <button onclick="location.href='#'" class="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                        <button onclick="location.href='{% url "dish_billpay" %}'" class="w-full bg-purple-500 text-white py-3 px-4 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
                             Pay Dish TV Bill
                         </button>
                     </div>
@@ -106,4 +110,5 @@
         </div>
     </div>
 </body>
+{% endblock content %}
 </html>

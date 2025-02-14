@@ -8,13 +8,14 @@ from smtplib import SMTPException
 import uuid
 from .models import CustomerProfile
 from django.contrib.auth import authenticate, login
-from .models import  DepositTransaction,TransferHistory
+from .models import  DepositTransaction,TransferHistory,Kseb_Billpay
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import razorpay
 
 from django.db.models import Sum
 
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -155,25 +156,23 @@ def login_view(request):
 
 def user_dashboard_view(request):
     return render(request,"user_dashboard.html")
-
-
-
+ 
 
 def accounts_page(request):
     user = request.user
-    account = DepositTransaction.objects.filter(user=user)
-
-    total=DepositTransaction.objects.filter(user=user).aggregate(Sum('amount'))['amount__sum']
+    deposit_total = DepositTransaction.objects.filter(user=user).aggregate(Sum('amount'))['amount__sum'] 
+    transfer_total = TransferHistory.objects.filter(sender=user).aggregate(Sum('amount'))['amount__sum'] 
+    total = deposit_total - transfer_total  
     customer_profile = CustomerProfile.objects.get(user=user)
-
     context = {
         "user": user,
-        "account": account,
+        "account": DepositTransaction.objects.filter(user=user),
         "customer_profile": customer_profile,
-        'total':total
+        "total": total,
     }
 
-    return render(request, "accounts.html", context)  
+    return render(request, "accounts.html", context)
+
 
 
     
@@ -195,10 +194,7 @@ def deposit_create_view(request):
                 return HttpResponse("Invalid deposit amount")
         except ValueError:
             return HttpResponse("Invalid amount format")
-
-        amount_in_paise = int(amount * 100)
-
-        # Create the deposit transaction 
+ # Create the deposit transaction 
         deposit = DepositTransaction.objects.create(
             user=user,
             account_number=account_number,
@@ -303,9 +299,6 @@ def account_transfer_view(request):
         receiver_name = request.POST.get("receiver_name")
         ifsc_code = request.POST.get("ifsc_code")
         amount = request.POST.get("amount")
-
-       
-
         try:
             amount = float(amount)
             if amount <= 0:
@@ -330,9 +323,6 @@ def account_transfer_view(request):
         return redirect("transfer_razorpay_order", transfer_id=transfer.id)
 
     return render(request, "account_transfer.html")
-
-
-
 
 
 def transfer_razorpay_order_view(request, transfer_id):
@@ -394,97 +384,149 @@ def razorpay_transfer_callback(request):
 
 
 
-    
-
-
-
-
-
-
-   
-
-
+@login_required
+  
 def view_statement(request):
-    return render(request,'view_statement.html')
-
-
-
-
+    user = request.user
     
+    # Fetch deposit and transfer history
+    deposit_view = DepositTransaction.objects.filter(user=user).order_by('-created_at')
+    transfer_view = TransferHistory.objects.filter(sender=user).order_by('-created_at')
+
+    # Add a transaction type for better differentiation
+    deposit_list = [{"type": "Credit", "amount": d.amount, "created_at": d.created_at,"status":d.status} for d in deposit_view]
+    transfer_list = [{"type": "Debit", "amount": t.amount, "created_at": t.created_at,"status":t.status} for t in transfer_view]
+
+    # Merge both lists
+    transaction_history = sorted(deposit_list + transfer_list, key=lambda x: x["created_at"], reverse=True)
+
+    # Calculate total credits and debits
+    total_credits = sum(d["amount"] for d in deposit_list)
+    total_debits = sum(t["amount"] for t in transfer_list)
+    balance = total_credits - total_debits
+
+    context = {
+        "user": user,
+        "transaction_history": transaction_history,
+        "total_credits": total_credits,
+        "total_debits": total_debits,
+        "balance": balance
+    }
+
+    return render(request, 'view_statement.html', context)
+
+def billpay(request):
+    return render(request,'billpay.html')
+
+def kseb_pay_view(request):
+    # if request.method == "POST":
+    #     consumer_number=request.POST.get("consumer_number")
+    #     bill_number=request.POST.get("bill_number")
+    #     bill_amt=request.POST.get("bill_amt")
+
+    #     try:
+    #         bill_amt = float(bill_amt)
+    #         if bill_amt <= 0:
+    #             return HttpResponse("Invalid Transfer Amount")
+    #     except ValueError:
+    #         return HttpResponse("Invalid amount format")
+    #     amount_in_paise = int(bill_amt * 100)
+
+    #     kseb_pay=Kseb_Billpay.objects.create(
+    #         user=request.user,
+    #         consumer_number=consumer_number,
+    #         bill_number=bill_number,
+    #         bill_amt=amount_in_paise
+
+    #     )
+
+    #     return redirect('billpay_razorpay',kseb_id=kseb_pay.id)
+    return render(request,"kseb_billpay.html")
 
 
 
+# def kseb_razorpay_view(request, kseb_id):
+#     kseb = Kseb_Billpay.objects.get(id=kseb_id)
 
+#     if kseb.status != "pending":
+#         return HttpResponse("Invalid kseb status.")
 
+#     client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))
 
-      
-      
+#     amt = int(kseb.amount)
+#     razorpay_order = client.order.create({"amount":amt,"currency": "INR","payment_capture": "1"})
 
+#     kseb.order_id = razorpay_order["id"]
+#     kseb.save()
 
-
-# def transaction_history(request):
-#     user = request.user
-#     transactions = TransactionHistory.objects.filter(user=user)
-
-#     return render(request, "transactions.html", {"transactions": transactions})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def account_details(request):
-#     if request.method != "POST":
-#         user_id = request.user.id
-#         forms=TransactionHistoryForm
-#         transactions = TransactionHistory.objects.filter(user_id=user_id)
-#         return render(request, 'account.html', {'data': transactions,'forms':forms})
-#     if request.method == "POST":
-#         form = TransactionHistoryForm(request.POST)  
-#         if form.is_valid():
-#             transaction_type = form.cleaned_data["transaction_type"]
-#             amount = form.cleaned_data["amount"]
-
-           
-#             if amount <= 0:
-#                 return JsonResponse({"error": "Amount must be greater than zero"}, status=400)
-#             if transaction_type == "Deposit":
-#                 account.balance += amount
-#             elif transaction_type == "Withdrawal":
-#                 if amount > account.balance:
-#                     return JsonResponse({"error": "Insufficient balance"}, status=400)
-#                 account.balance -= amount
-#             else:
-#                 return JsonResponse({"error": "Invalid transaction type"}, status=400)
-
-            
-#             account.save()
-
-#             TransactionHistory.objects.create(
-#                 user=User,
-#                 transaction_type=transaction_type,
-#                 amount=amount,
-#                 balance_after_transaction=account.balance
-#             )
-
-#             return JsonResponse({"message": "Transaction successful"}, status=200) 
-    
-#     return render(request, 'account.html', {
-#         'balance': account.balance,
-#         'data': transactions,
-#         'form': form  
+#     return render(request, "account_kseb.html", {
+#         "kseb": kseb,
+#         "razorpay_key": 'rzp_test_mwbtpQAgt0Xjve',
+#         "callback_url": "http://127.0.0.1:8000/razorpay/callback/tranfer/",
 #     })
 
-from django.views.generic import View
-class etc(View):
-    def get(self,request):
-        return render(request,'etc.html')
+# @csrf_exempt 
+# def razorpay_kseb_callback(request):
+#     if request.method == "POST":
+#         razorpay_payment_id = request.POST.get("razorpay_payment_id")
+#         razorpay_order_id = request.POST.get("razorpay_order_id")
+#         razorpay_signature = request.POST.get("razorpay_signature")
+
+        
+
+#         try:
+
+#             kseb = Kseb_Billpay.objects.get(order_id=razorpay_order_id)
+#             client = razorpay.Client(auth=('rzp_test_mwbtpQAgt0Xjve', 'T6oVFCs7TUaMahVVkE0JHes9'))
+
+#             params_dict = {
+#                 "razorpay_order_id": razorpay_order_id,
+#                 "razorpay_payment_id": razorpay_payment_id,
+#                 "razorpay_signature": razorpay_signature,
+#             }
+
+#             client.utility.verify_payment_signature(params_dict)
+
+#             # Mark transfer as successful
+#             kseb.status = "successful"
+#             kseb.save()
+
+#             return redirect("transfers")
+
+#         except razorpay.errors.SignatureVerificationError:
+#             kseb.status = "failed"
+#             kseb.save()
+#             return HttpResponse("Payment verification failed")
+
+#     return HttpResponse("Invalid request method")
+
+
+
+        
+
+
+
+
+
+    
+def dish_billpay_view(request):
+    return render(request,'dish_billpay.html')
+def water_billpay_view(request):
+    return render(request,'water_billpay.html')
+    
+
+
+
+
+    
+
+
+
+
+
+
+      
+      
+
+
 
