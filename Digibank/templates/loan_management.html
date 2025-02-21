@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+{% extends 'dashboard_user.html' %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #1a237e;
+        }
+
+        .loan-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .loan-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .loan-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .loan-card h3 {
+            color: #1a237e;
+            margin-bottom: 10px;
+        }
+
+        .loan-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .rate {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #1a237e;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .application-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Loan Management System</h1>
+            <p>Choose your loan type to get started</p>
+        </div>
+
+        <div class="loan-types">
+            <div class="loan-card" onclick="showForm('Business')">
+                <h3>Business Loan</h3>
+                <p>Grow your business with flexible financing options</p>
+                <p class="rate">Interest Rate: 8-12%</p>
+            </div>
+
+            <div class="loan-card" onclick="showForm('Housing')">
+                <h3>Housing Loan</h3>
+                <p>Make your dream home a reality</p>
+                <p class="rate">Interest Rate: 6-9%</p>
+            </div>
+
+            <div class="loan-card" onclick="showForm('Vehicle')">
+                <h3>Vehicle Loan</h3>
+                <p>Finance your new vehicle purchase</p>
+                <p class="rate">Interest Rate: 7-11%</p>
+            </div>
+
+            <div class="loan-card" onclick="showForm('Student')">
+                <h3>Student Loan</h3>
+                <p>Invest in your education</p>
+                <p class="rate">Interest Rate: 4-7%</p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-primary" onclick="generatePDF()">Download PDF</button>
+            <button class="btn btn-secondary" onclick="showApplicationForm()">Apply Now</button>
+            <button class="btn btn-primary" onclick="printForm()">Print Form</button>
+            <button class="btn btn-secondary" onclick="checkStatus()">Check Status</button>
+        </div>
+
+        <div class="application-form" id="applicationForm">
+            <h2>Loan Application Form</h2>
+            <form id="loanForm" onsubmit="submitForm(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanType">Loan Type</label>
+                        <select id="loanType" required>
+                            <option value="">Select Loan Type</option>
+                            <option value="business">Business Loan</option>
+                            <option value="housing">Housing Loan</option>
+                            <option value="vehicle">Vehicle Loan</option>
+                            <option value="student">Student Loan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Loan Amount</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Loan Duration (in years)</label>
+                        <input type="number" id="duration" min="1" max="30" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showForm(loanType) {
+            document.getElementById('loanType').value = loanType.toLowerCase();
+            showApplicationForm();
+        }
+
+        function showApplicationForm() {
+            document.getElementById('applicationForm').classList.add('show');
+        }
+
+        function generatePDF() {
+            alert('Downloading loan information PDF...');
+            // Add actual PDF generation logic here
+        }
+
+        function printForm() {
+            window.print();
+        }
+
+        function checkStatus() {
+            alert('Loan application status checking functionality will be implemented here');
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            alert('Loan application submitted successfully!');
+            // Add actual form submission logic here
+        }
+    </script>
+</body>
+{% endblock content %}
+</html>

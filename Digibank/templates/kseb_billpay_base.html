@@ -5,7 +5,7 @@
 
     {% include 'kseb_billpay.html' %}  <!-- Include the deposit form -->
     
-    {% if kseb %}
+    {% if kseb_pay %}
         {% include 'kseb_payment.html' %}  <!-- Include the Razorpay script only if deposit exists -->
     {% endif %}
 

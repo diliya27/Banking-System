@@ -1,0 +1,29 @@
+
+<form  method="POST">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        key: "{{ razorpay_key }}",
+        amount: "{{ water_billpay.bill_amt }}", 
+        currency: "INR",
+        name: "{{ water_billpay.user.username }}",
+        description: "Water Bill Payment",
+        order_id: "{{ water_billpay.transaction_id }}",
+        callback_url: "{{ callback_url }}",
+        prefill: {
+            "name": "{{ user.username }}",
+            "email": "{{ user.email }}",
+            "contact": "{{ user.phone_number }}"
+        },
+        theme: {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+    </script>
+</form>
+
+
+
+

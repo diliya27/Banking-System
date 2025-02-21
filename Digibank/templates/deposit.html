@@ -2,7 +2,7 @@
 {% extends 'dashboard_user.html' %}
 {% load static %}
 {% block content%}
-
+{{request.user}}
     {% include 'deposit_form.html' %}  <!-- Include the deposit form -->
     
     {% if deposit %}

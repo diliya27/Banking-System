@@ -1,0 +1,11 @@
+{% extends 'dashboard_user.html' %}
+{% load static %}
+{% block content %}
+
+    {% include 'water_billpay.html' %}  <!-- Include the bill payment form -->
+
+    {% if water_billpay %}
+        {% include 'water_payment.html' %}  <!-- Include Razorpay script only -->
+    {% endif %}
+
+{% endblock content %}

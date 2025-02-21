@@ -1,0 +1,29 @@
+
+<form  method="POST">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        key: "{{ razorpay_key }}",
+        amount: "{{ kseb_pay.bill_amt }}", 
+        currency: "INR",
+        name: "{{ kseb_pay.user.username }}",
+        description: "KSEB Bill Payment",
+        order_id: "{{ kseb_pay.transaction_id }}",
+        callback_url: "{{ callback_url }}",
+        prefill: {
+            "name": "{{ user.username }}",
+            "email": "{{ user.email }}",
+            "contact": "{{ user.phone_number }}"
+        },
+        theme: {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+    </script>
+</form>
+
+
+
+

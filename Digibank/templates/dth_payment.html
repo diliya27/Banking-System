@@ -1,0 +1,32 @@
+
+<form  method="POST">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ dth_payment.amount|floatformat:2|floatformat:0 }}00",
+        "currency": "INR",
+        "name": "DTH Bill Payment",
+        "description": "Payment for {{ dth_payment.provider }} Recharge",
+        "order_id": "{{ razorpay_order_id }}",
+        "callback_url": "{{ callback_url }}",
+        "prefill": {
+            "name": "{{ dth_payment.user.username }}",
+            "email": "{{ dth_payment.user.email }}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+
+    var rzp1 = new Razorpay(options);
+
+       
+    rzp1.open();
+           
+        
+    </script>
+</form>
+
+
+

@@ -1,4 +1,4 @@
-<form action="http://127.0.0.1:8000/banking/status/{{transfer.receiver_name}}" method="POST">
+<form  method="POST">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
     var options = {
@@ -8,7 +8,7 @@
         name: "{{transfer.receiver_name}}",
         description: "Bank Transfer",
         image: "https://example.com/your_logo",
-        order_id: "{{transfer.order_id}}",
+        order_id: "{{razorpay_order_id}}",
         callback_url: "{{callback_url}}",
         redirect: true,
         prefill: {

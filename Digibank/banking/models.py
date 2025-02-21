@@ -71,7 +71,7 @@ class DepositTransaction(models.Model):
     ifsc_code = models.CharField(max_length=11)  
     amount = models.DecimalField(max_digits=10, decimal_places=2)  
     currency = models.CharField(max_length=3, default='INR')
-    order_id = models.CharField(max_length=100, unique=True) 
+    order_id = models.CharField(max_length=500,null=True, unique=True) 
     payment_id = models.CharField(max_length=100, blank=True, null=True)  
     signature = models.CharField(max_length=255, blank=True, null=True) 
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
@@ -129,68 +129,125 @@ class TransferHistory(models.Model):
 
 
 
+
+
+
 class Kseb_Billpay(models.Model):
 
-    PAYMENT_STATUS=[
-        ('Pending','Pending'),
-        ('Success','Success'),
-        ('Failed','Failed'),
+    PAYMENT_STATUS = [
+        ('Pending', 'Pending'),
+        ('Success', 'Success'),
+        ('Failed', 'Failed'),
     ]
-    PAYMENT_MODES=[
-        ('UPI','UPI'),
-        ('Net Banking','Net Banking'),
-        ('Debit Card','Debit Card'),
-        ('Credit Card','Credit Card'),
+    PAYMENT_MODES = [
+        ('UPI', 'UPI'),
+        ('Net Banking', 'Net Banking'),
+        ('Debit Card', 'Debit Card'),
+        ('Credit Card', 'Credit Card'),
     ]
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    consumer_number=models.IntegerField()
-    bill_number=models.IntegerField(unique=True)
-    bill_amt=models.IntegerField()
-    due_date=models.DateField()
-    payment_date=models.DateField(auto_now=True)
-    transaction_id=models.CharField(max_length=50,unique=True)
-    payment_status=models.CharField(max_length=15,choices=PAYMENT_STATUS)
-    mode_of_payment=models.CharField(max_length=20,choices=PAYMENT_MODES)
-    account_number=models.BigIntegerField()
-    bank_name=models.CharField(max_length=50)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    consumer_number = models.CharField(max_length=15)  # Changed to CharField
+    bill_number = models.CharField(max_length=20)  # Changed to CharField
+    bill_amt = models.DecimalField(max_digits=10, decimal_places=2)  # Changed to DecimalField
+    due_date = models.DateField(blank=True, null=True)
+    payment_date = models.DateField(auto_now=True)
+    transaction_id = models.CharField(max_length=50, unique=True, default=uuid.uuid4,null=True,blank=True)  # Generates unique ID
+    payment_status = models.CharField(max_length=15, choices=PAYMENT_STATUS, default="Pending")
+    signature = models.CharField(max_length=255, blank=True, null=True) 
+    mode_of_payment = models.CharField(max_length=20, choices=PAYMENT_MODES, blank=True, null=True)
+    account_number = models.BigIntegerField(blank=True, null=True)
+    bank_name = models.CharField(max_length=50,blank=True, null=True)
 
     def __str__(self):
         return self.user.username
 
-# class WaterBillPayment(models.Model):
+
+class WaterBillPayment(models.Model):
   
 
-#     PAYMENT_MODES = [
-#         ('UPI', 'UPI'),
-#         ('Net Banking', 'Net Banking'),
-#         ('Debit Card', 'Debit Card'),
-#         ('Credit Card', 'Credit Card'),
+    PAYMENT_MODES = [
+        ('UPI', 'UPI'),
+        ('Net Banking', 'Net Banking'),
+        ('Debit Card', 'Debit Card'),
+        ('Credit Card', 'Credit Card'),
        
-#     ]
+    ]
 
-#     PAYMENT_STATUS = [
-#         ('Pending', 'Pending'),
-#         ('Success', 'Success'),
-#         ('Failed', 'Failed'),
-#     ]
+    PAYMENT_STATUS = [
+        ('Pending', 'Pending'),
+        ('Success', 'Success'),
+        ('Failed', 'Failed'),
+    ]
 
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)  
-#     consumer_number = models.CharField(max_length=20, unique=True)  
-#     bill_number = models.CharField(max_length=30, unique=True)  
-#     bill_amount = models.IntegerField()  
-#     due_date = models.DateField()  
-#     billing_month = models.CharField(max_length=20) 
-#     payment_date = models.DateTimeField(auto_now_add=True)  
-#     transaction_id = models.CharField(max_length=50, unique=True)  
-#     amount_paid = models.IntegerField()  
-#     mode_of_payment = models.CharField(max_length=20, choices=PAYMENT_MODES) 
-#     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='Pending')  
-#     account_number = models.BigIntegerField()  
-#     bank_name = models.CharField(max_length=100) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    consumer_number = models.CharField(max_length=20, unique=True,null=True)  
+    bill_number = models.CharField(max_length=30, unique=True)  
+    bill_amount = models.IntegerField()  
+    due_date = models.DateField(blank=True, null=True)  
+    billing_month = models.CharField(max_length=20,blank=True, null=True) 
+    payment_date = models.DateTimeField(auto_now_add=True)  
+    transaction_id = models.CharField(max_length=50, unique=True)
+    signature = models.CharField(max_length=255, blank=True, null=True)  
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)  
+    amount_paid = models.IntegerField(null=True, blank=True)  
+    mode_of_payment = models.CharField(max_length=20, choices=PAYMENT_MODES) 
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='Pending')  
+    
 
-#     def __str__(self):
-#         return self.user.username
+    def __str__(self):
+        return self.user.username
 
+
+
+class RechargePackage(models.Model):
+    SERVICE_PROVIDERS = [
+        ('Airtel Digital TV', 'Airtel Digital TV'),
+        ('D2H', 'D2H'),
+        ('Tata Play', 'Tata Play'),
+        ('Dish TV', 'Dish TV'),
+    ]
+
+    provider = models.CharField(max_length=50, choices=SERVICE_PROVIDERS)
+    name = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def __str__(self):
+        return self.provider
+
+
+class DTHBillPayment(models.Model):
+    SERVICE_PROVIDERS = [
+        ('Airtel Digital TV', 'Airtel Digital TV'),
+        ('D2H', 'D2H'),
+        ('Tata Play', 'Tata Play'),
+        ('Dish TV', 'Dish TV'),
+    ]
+
+    PAYMENT_METHODS = [
+        ('UPI', 'UPI'),
+        ('Net Banking', 'Net Banking'),
+        
+    ]
+
+    PAYMENT_STATUS = [
+        ('pending', 'Pending'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subscriber_id = models.CharField(max_length=11)
+    provider = models.CharField(max_length=50, choices=SERVICE_PROVIDERS)
+    package = models.ForeignKey(RechargePackage, on_delete=models.SET_NULL, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHODS)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.provider} - ₹{self.amount} - {self.payment_status}"
 
 
 

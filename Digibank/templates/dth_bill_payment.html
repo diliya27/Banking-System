@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+{% extends 'dashboard_user.html' %}
+{% load static %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTH Bill Payment</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .payment-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(to right bottom, #ffffff, #f8f9fa);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .form-check {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-check:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .payment-method-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .package-option {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .package-option:hover {
+            border-color: #6366f1;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="payment-form">
+        <div class="form-header">
+            <h2><i class="fas fa-tv me-2"></i>DTH Bill Payment</h2>
+            <p class="mb-0">Pay your DTH bill securely online</p>
+        </div>
+
+        <form method="POST" action="{% url 'dth_bill_payment' %}" class="p-4">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label for="subscriber_id" class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Subscriber ID / Smart Card Number
+                </label>
+                <input type="text" name="subscriber_id" class="form-control" 
+                       required placeholder="Enter 11-digit Subscriber ID"
+                       pattern="\d{11}" title="Please enter 11 digits">
+            </div>
+
+            <div class="mb-4">
+                <label for="provider" class="form-label">
+                    <i class="fas fa-broadcast-tower me-2"></i>Service Provider
+                </label>
+                <select name="provider" class="form-select">
+                    <option value="Airtel Digital TV">Airtel Digital TV</option>
+                    <option value="D2H">D2H</option>
+                    <option value="Tata Play">Tata Play</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">
+                    <i class="fas fa-box me-2"></i>Select Recharge Package
+                </label>
+                {% for package in packages %}
+                    <div class="package-option">
+                        <div class="form-check">
+                            <input type="radio" name="package_id" value="{{ package.id }}" 
+                                   class="form-check-input" required>
+                            <label class="form-check-label d-flex justify-content-around ">
+                                <strong>{{ package.name }}</strong>
+                                <span class="float-end text-primary">₹{{ package.amount }}</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% empty %}
+        <p>No packages available.</p>
+                {% endfor %}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">
+                    <i class="fas fa-credit-card me-2"></i>Select Payment Method
+                </label>
+                <select name="payment_method" class="form-select">
+                    <option value="UPI">UPI</option>
+                    <option value="Net Banking">Net Banking</option>
+                    <option value="Credit/Debit Card">Credit/Debit Card</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-lock me-2"></i>Proceed to Pay
+            </button>
+
+            <div class="payment-method-icons">
+                <i class="fab fa-cc-visa fa-2x text-muted"></i>
+                <i class="fab fa-cc-mastercard fa-2x text-muted"></i>
+                <i class="fab fa-google-pay fa-2x text-muted"></i>
+                <i class="fab fa-apple-pay fa-2x text-muted"></i>
+            </div>
+        </form>
+    </div>
+
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+{% endblock content %}
+</html>

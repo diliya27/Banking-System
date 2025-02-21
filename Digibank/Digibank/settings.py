@@ -127,3 +127,11 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "diliyadhanish@gmail.com"
 
 EMAIL_HOST_PASSWORD = "gdqh rqmz auup ceck"
+
+# RAZORPAY_KEY_ID = 'rzp_test_91eopcxhCbCO8V'
+# RAZORPAY_KEY_SECRET = 'cTyXYxAGkogvHHxThPfKTH0s'
+
+
+
+RAZORPAY_KEY_ID  = "rzp_test_IzIBFTmzd3zzKk"
+RAZORPAY_KEY_SECRET = "mMvIdZd7a4EU1pMd9tSQEbE0"

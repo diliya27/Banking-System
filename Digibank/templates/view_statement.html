@@ -1,4 +1,4 @@
-{% extends 'dashboard_user.html'%}
+{% extends 'dashboard_user.html' %}
 {% load static %}
 
 {% block content %}
@@ -10,14 +10,17 @@
                <h1 class="text-2xl font-bold text-gray-800 mb-2">Transaction History</h1>
                <p class="text-gray-600">View all your account transactions</p>
            </div>
-           
+
            <!-- Download Button -->
-           <div class="flex space-x-4">
-               <button class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                   <i class="fas fa-download mr-2"></i>
-                   Download Statement
+           <form id="downloadPdfForm" method="GET" action="{% url 'download_statement_pdf' %}">
+               <input type="hidden" name="start_date" id="pdf_start_date">
+               <input type="hidden" name="end_date" id="pdf_end_date">
+               <button type="submit" 
+                       class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                   <i class="fas fa-file-pdf mr-2"></i>
+                   Download PDF Statement
                </button>
-           </div>
+           </form>
        </div>
 
        <!-- Search and Filter Section -->
@@ -26,18 +29,18 @@
            <div class="col-span-2 grid grid-cols-2 gap-4">
                <div class="relative">
                    <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
-                   <input type="date" 
+                   <input type="date" id="start_date"
                           name="start_date" 
                           class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                </div>
                <div class="relative">
                    <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
-                   <input type="date" 
+                   <input type="date" id="end_date"
                           name="end_date" 
                           class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                </div>
            </div>
-           
+
            <!-- Search Box -->
            <div class="relative">
                <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
@@ -51,7 +54,6 @@
 
        <!-- Transaction Summary Cards -->
        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-           <!-- Total Credits -->
            <div class="bg-green-50 p-4 rounded-lg">
                <div class="flex items-center">
                    <div class="rounded-full bg-green-100 p-3 mr-4">
@@ -59,12 +61,10 @@
                    </div>
                    <div>
                        <p class="text-sm text-green-600">Total Credits</p>
-                       <p class="text-xl font-bold text-green-700">{{total_credits}}</p>
+                       <p class="text-xl font-bold text-green-700">{{ total_credits }}</p>
                    </div>
                </div>
            </div>
-           
-           <!-- Total Debits -->
            <div class="bg-red-50 p-4 rounded-lg">
                <div class="flex items-center">
                    <div class="rounded-full bg-red-100 p-3 mr-4">
@@ -72,12 +72,10 @@
                    </div>
                    <div>
                        <p class="text-sm text-red-600">Total Debits</p>
-                       <p class="text-xl font-bold text-red-700">{{total_debits}}</p>
+                       <p class="text-xl font-bold text-red-700">{{ total_debits }}</p>
                    </div>
                </div>
            </div>
-           
-           <!-- Net Balance -->
            <div class="bg-blue-50 p-4 rounded-lg">
                <div class="flex items-center">
                    <div class="rounded-full bg-blue-100 p-3 mr-4">
@@ -85,7 +83,7 @@
                    </div>
                    <div>
                        <p class="text-sm text-blue-600">Net Balance</p>
-                       <p class="text-xl font-bold text-blue-700">{{balance}}</p>
+                       <p class="text-xl font-bold text-blue-700">{{ balance }}</p>
                    </div>
                </div>
            </div>
@@ -94,118 +92,81 @@
        <!-- Transaction Table -->
        <div class="overflow-x-auto">
            <table class="min-w-full divide-y divide-gray-200 text-center">
-               <thead class="bg-gray-50 ">
+               <thead class="bg-gray-50">
+                <tr><th>Account Number</th><td>{{acc_num}}</td></tr>
                    <tr>
-                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                           Date & Time
-                       </th>
-                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                           Type
-                       </th>
-                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                           Amount
-                       </th>
-                       {% comment %} <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                           Balance
-                       </th> {% endcomment %}
-                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                           Status
-                       </th>
-                       {% comment %} <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                           Action
-                       </th> {% endcomment %}
+                       <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                       <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Type</th>
+                       <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Amount</th>
+                       <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
                    </tr>
                </thead>
                <tbody>
-                {% for i in transaction_history %}
-                    <tr>
-                        <td>{{ i.created_at }}</td>
-                        <td>{{i.type}}</td>
-                        <td>₹{{ i.amount }}</td>
-                        {% comment %} <td>₹{{ i.total }}</td> {% endcomment %}
-                        <td>{{i.status}}</td>
-                        {% comment %} <td>Completed</td> {% endcomment %}
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5">No transactions found.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            <div class="overflow-x-auto">
-            
-        
-            <table class="min-w-full divide-y divide-gray-200 mt-3">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Balance
-                        </th>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-bold text-blue-600">
-                            {{ balance }}
-                        </td>
-                    </tr>
-                </thead>
-               
-            </table>
+                   {% for i in transaction_history %}
+                   <tr>
+                       <td>{{ i.created_at }}</td>
+                       <td>{{ i.type }}</td>
+                       <td>₹{{ i.amount }}</td>
+                       <td>{{ i.status }}</td>
+                   </tr>
+                   {% empty %}
+                   <tr>
+                       <td colspan="4">No transactions found.</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
 
+       <!-- Balance Display -->
+       <div class="overflow-x-auto mt-3">
+           <table class="min-w-full divide-y divide-gray-200">
+               <thead class="bg-gray-50">
+                   <tr>
+                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                       <td class="px-6 py-4 text-center text-lg font-bold text-blue-600">{{ balance }}</td>
+                   </tr>
+               </thead>
+           </table>
        </div>
 
        <!-- Pagination -->
        <div class="mt-4 flex items-center justify-between">
-           <div class="flex-1 flex justify-between sm:hidden">
-               <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                   Previous
-               </button>
-               <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                   Next
-               </button>
-           </div>
-           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-               <div>
-                   <p class="text-sm text-gray-700">
-                       Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> results
-                   </p>
-               </div>
-               <div>
-                   <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                       <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                           Previous
-                       </button>
-                       <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                           1
-                       </button>
-                       <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                           2
-                       </button>
-                       <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                           Next
-                       </button>
-                   </nav>
-               </div>
-           </div>
+           <p class="text-sm text-gray-700">
+               Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> results
+           </p>
+           <nav class="relative z-0 inline-flex rounded-md shadow-sm">
+               <button class="px-4 py-2 border bg-white text-gray-700 hover:bg-gray-50">Previous</button>
+               <button class="px-4 py-2 border bg-white text-gray-700 hover:bg-gray-50">1</button>
+               <button class="px-4 py-2 border bg-white text-gray-700 hover:bg-gray-50">2</button>
+               <button class="px-4 py-2 border bg-white text-gray-700 hover:bg-gray-50">Next</button>
+           </nav>
        </div>
    </div>
 </div>
 
-<!-- Add JavaScript for date range filtering -->
+<!-- JavaScript for date range filtering and PDF download -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-   const startDate = document.querySelector('input[name="start_date"]');
-   const endDate = document.querySelector('input[name="end_date"]');
-   const searchInput = document.querySelector('#search');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const searchInput = document.getElementById('search');
+    const downloadForm = document.getElementById('downloadPdfForm');
+    const hiddenStartDate = document.getElementById('pdf_start_date');
+    const hiddenEndDate = document.getElementById('pdf_end_date');
 
-   function filterTransactions() {
-       // Add your filtering logic here
-       console.log('Filtering transactions...');
-       console.log('Start Date:', startDate.value);
-       console.log('End Date:', endDate.value);
-       console.log('Search:', searchInput.value);
-   }
+    function filterTransactions() {
+        console.log('Filtering transactions...', startDateInput.value, endDateInput.value, searchInput.value);
+    }
 
-   startDate.addEventListener('change', filterTransactions);
-   endDate.addEventListener('change', filterTransactions);
-   searchInput.addEventListener('input', filterTransactions);
+    startDateInput.addEventListener('change', filterTransactions);
+    endDateInput.addEventListener('change', filterTransactions);
+    searchInput.addEventListener('input', filterTransactions);
+
+    downloadForm.addEventListener('submit', function() {
+        hiddenStartDate.value = startDateInput.value;
+        hiddenEndDate.value = endDateInput.value;
+    });
 });
 </script>
 {% endblock content %}

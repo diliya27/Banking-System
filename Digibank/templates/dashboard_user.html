@@ -110,8 +110,8 @@
                 <li class="nav-item {% if request.resolver_match.url_name == 'billpay' %}active{% endif %} ">
                     <a href="{% url 'billpay' %}" class="text-white">Bills</a>
                 </li>
-                <li class="nav-item ">
-                    <a href="" class="text-white">Loans</a>
+                <li class="nav-item{% if request.resolver_match.url_name == 'loan_management' %}active{% endif %} ">
+                    <a href="{% url 'loan_management' %}" class="text-white">Loans</a>
                 </li>
                 <li class="nav-item">
                     <a href="" class="text-white">Credit Score</a>
