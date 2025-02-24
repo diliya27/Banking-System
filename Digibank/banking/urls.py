@@ -37,15 +37,19 @@ urlpatterns = [
     path('water_billpay/razorpay/<int:water_billpay_id>/',views. water_razorpay_view, name='waterbill_razorpay'),
     path('razorpay/callback/water_billpay/',views. razorpay_water_callback, name='razorpay_water_callback'),
     
-    # path("dish_billpay",views.dth_bill_payment_view,name='dish_billpay'),
+    
     path("dth/bill-payment/", dth_bill_payment_view, name="dth_bill_payment"),
     path("dth/payment/<int:dth_payment_id>/", dth_razorpay_payment_view, name="dth_razorpay_payment"),
     path("razorpay/callback/dth/", razorpay_dth_callback, name="razorpay_dth_callback"),
 
-    
+    path("loan_management/",views.loan_management_view,name="loan_management"),
+    path("loan_details/<int:loan_id>/", loan_details_view, name="loan_details"),
 
+    path("check_cibil_score",views.check_cibil_score,name="check_cibil_score"),
 
-    path("loan_management/",views.loan_management_view,name="loan_management")
+    path("submit_card_request/",views.submit_card_request,name="submit_card_request"),
+    path("view_card_request/<int:card_request_id>/", views.view_card_request, name="view_card_request"),
+
 
     
 ]

@@ -8,7 +8,7 @@ from smtplib import SMTPException
 import uuid
 from .models import CustomerProfile
 from django.contrib.auth import authenticate, login
-from .models import  DepositTransaction,TransferHistory,Kseb_Billpay,WaterBillPayment,DTHBillPayment, RechargePackage
+from .models import  DepositTransaction,TransferHistory,Kseb_Billpay,WaterBillPayment,DTHBillPayment, RechargePackage,Loanmanagement,CardRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
@@ -24,7 +24,7 @@ from reportlab.pdfgen import canvas
 from django.urls import reverse
 
 from .models import Kseb_Billpay
-# from reportlab.pdfgen import canvas
+
 
 
 
@@ -826,9 +826,7 @@ def razorpay_water_callback(request):
         return JsonResponse({"error": "Something went wrong"})
 
 
-   
-# def dish_billpay_view(request):
-#     return render(request,'dish_billpay.html')
+ 
 
 
 
@@ -945,19 +943,140 @@ def razorpay_dth_callback(request):
     except Exception as e:
         return JsonResponse({"error": f"Something went wrong: {str(e)}"})
 
+from decimal import Decimal
+
+@login_required
 def loan_management_view(request):
-    return render(request,'loan_management.html')
+    if request.method == "POST":
+        full_name = request.POST.get("full_name")
+        email = request.POST.get("email")
+        phone_number = request.POST.get("phone_number")
+        loan_type = request.POST.get("loan_type")
+        loan_amount = request.POST.get("loan_amount")
+        loan_duration = request.POST.get("loan_duration")
 
+        if not all([full_name, email, phone_number, loan_type, loan_amount, loan_duration]):
+            messages.error(request, "All fields are required.")
+            return redirect("loan_management")
+
+        try:
+            loan_amount = Decimal(loan_amount)
+            loan_duration = int(loan_duration)
+        except ValueError:
+            messages.error(request, "Invalid input for loan amount or duration.")
+            return redirect("loan_management")
+
+        # Save the loan application
+        loan = Loanmanagement.objects.create(
+            user=request.user,
+            full_name=full_name,
+            email=email,
+            phone_number=phone_number,
+            loan_type=loan_type,
+            loan_amount=loan_amount,
+            loan_duration=loan_duration
+        )
+
+        messages.success(request, "Loan application submitted successfully!")
+        return redirect("loan_details", loan_id=loan.id)  # Redirect to details page
+
+    return render(request, "loan_management.html")
+@login_required
+def loan_details_view(request, loan_id):
+    loan = Loanmanagement.objects.get(id=loan_id, user=request.user)  # Fetch the loan record
+    return render(request, "loan_details.html", {"loan": loan})
+
+
+
+
+
+
+import datetime
+def check_cibil_score(request):
+    if request.method == "POST":
+        
+        full_name = request.POST.get("full_name")
+        pan_number = request.POST.get("pan_number")
+        dob = request.POST.get("dob")
+        mobile = request.POST.get("mobile")
+        email = request.POST.get("email")
+
+        # Dummy logic to generate a CIBIL score (you can replace it with actual logic)
+        import random
+        score = random.randint(300, 900)
+
+        # Render output page with the calculated score and user details
+        context = {
+            "name": full_name,
+            "account_number": "123456789012",  # You can replace this with actual data
+            "pan_number": pan_number,
+            "dob": dob,
+            "mobile":mobile,
+            "email":email,
+            "report_date": datetime.datetime.now().strftime("%B %d, %Y"),
+            "score": score
+        }
+        return render(request, "cibil_score_output.html", context)
+
+    return render(request, "cibil_score.html")
+
+
+
+@login_required
+def submit_card_request(request):
+    if request.method == "POST":
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        date_of_birth = request.POST.get('date_of_birth')
+        home_address = request.POST.get('home_address')
+        card_type = request.POST.get('card_type')
+        adhar_number = request.POST.get('adhar_number')
+        annual_income = request.POST.get('annual_income')
+        employment_status = request.POST.get('employment_status')
+
+      
+        if not all([first_name, last_name, email, phone_number, date_of_birth,
+                    home_address, card_type, adhar_number, annual_income, employment_status]):
+            messages.error(request, "All fields are required.")
+            return redirect('submit_card_request')
+        if not adhar_number.isdigit() or len(adhar_number) != 12:
+            messages.error(request, "Invalid Aadhar number. It should be 12 digits.")
+            return redirect('submit_card_request')
+
+
+       
+        card_request = CardRequest.objects.create(
+            user=request.user,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone_number=phone_number,
+            date_of_birth=date_of_birth,
+            home_address=home_address,
+            card_type=card_type,
+            adhar_number=adhar_number,
+            annual_income=annual_income,
+            employment_status=employment_status
+        )
+        card_request.save()
+        print(card_request)
+        
+
+        messages.success(request, "Card request submitted successfully!")
+        return redirect('view_card_request', card_request_id=card_request.id)
+
+    # For GET requests, render the request form template
+    return render(request, 'submit_card_request.html')
+
+
+
+@login_required
+def view_card_request(request, card_request_id):
+    card_request =CardRequest.objects.get( id=card_request_id, user=request.user)
     
-
-
-
-
-    
-
-
-
-
+    return render(request, 'view_card_request.html', {'card_request': card_request})
 
 
       

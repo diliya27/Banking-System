@@ -180,48 +180,51 @@
 
         <div class="application-form" id="applicationForm">
             <h2>Loan Application Form</h2>
-            <form id="loanForm" onsubmit="submitForm(event)">
+            <form id="loanForm" method="POST" action="{% url 'loan_management' %}">
+                {% csrf_token %}
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" required>
+                        <input type="text" id="fullName" name="full_name" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" required>
+                        <input type="email" id="email" name="email" required>
                     </div>
                 </div>
-
+            
                 <div class="form-row">
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" required>
+                        <input type="tel" id="phone" name="phone_number" required>
                     </div>
                     <div class="form-group">
                         <label for="loanType">Loan Type</label>
-                        <select id="loanType" required>
+                        <select id="loanType" name="loan_type" required>
                             <option value="">Select Loan Type</option>
-                            <option value="business">Business Loan</option>
-                            <option value="housing">Housing Loan</option>
-                            <option value="vehicle">Vehicle Loan</option>
-                            <option value="student">Student Loan</option>
+                            <option value="Business Loan">Business Loan</option>
+                            <option value="Housing Loan">Housing Loan</option>
+                            <option value="Vehicle Loan">Vehicle Loan</option>
+                            <option value="Student Loan">Student Loan</option>
                         </select>
                     </div>
                 </div>
-
+            
                 <div class="form-row">
                     <div class="form-group">
                         <label for="amount">Loan Amount</label>
-                        <input type="number" id="amount" required>
+                        <input type="number" id="amount" name="loan_amount" step="0.01" required>
                     </div>
                     <div class="form-group">
                         <label for="duration">Loan Duration (in years)</label>
-                        <input type="number" id="duration" min="1" max="30" required>
+                        <input type="number" id="duration" min="1" max="30" name="loan_duration" required>
                     </div>
                 </div>
-
+            
                 <button type="submit" class="btn btn-primary">Submit Application</button>
             </form>
+            
         </div>
     </div>
 

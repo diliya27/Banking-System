@@ -248,6 +248,60 @@ class DTHBillPayment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.provider} - ₹{self.amount} - {self.payment_status}"
+    
+
+
+class Loanmanagement(models.Model):
+
+    LOAN_TYPE=[
+        ('Business Loan','Business Loan'),
+        ('Housing Loan','Housing Loan'),
+        ('Vehicle Loan','Vehicle Loan'),
+        ('Student Loan','Student Loan')
+    ]
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    full_name=models.CharField(max_length=30)
+    phone_number=models.CharField(max_length=10)
+    email=models.EmailField()
+    loan_type = models.CharField(max_length=50,choices=LOAN_TYPE)
+    loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    loan_duration = models.PositiveIntegerField()  # Duration in years
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
+    
+
+
+class CardRequest(models.Model):
+    EMPLOYMENT_CHOICES = [
+        ('employed', 'Employed'),
+        ('self-employed', 'Self-Employed'),
+        ('unemployed', 'Unemployed'),
+        ('student', 'Student'),
+        ('retired', 'Retired'),
+    ]
+    CARD_TYPES = [
+        ('debit', 'Debit Card'),
+        ('credit', 'Credit Card'),
+        ('prepaid', 'Prepaid Card'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to user
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15)
+    date_of_birth = models.DateField()
+    card_type = models.CharField(max_length=10, choices=CARD_TYPES)
+    employment_status = models.CharField(max_length=20, choices=EMPLOYMENT_CHOICES)
+    annual_income = models.DecimalField(max_digits=10, decimal_places=2)
+    adhar_number = models.CharField(max_length=20, unique=True)
+    home_address = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)  # Auto timestamp
+
+    def __str__(self):
+        return self.first_name
 
 
 

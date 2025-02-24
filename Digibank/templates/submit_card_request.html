@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+{% extends 'dashboard_user.html' %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Banking Cards</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1a365d;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.credit {
+            background: linear-gradient(135deg, #6B46C1 0%, #4A5568 100%);
+        }
+
+        .card-type {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .card-number {
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .card-holder {
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .expiry {
+            font-size: 0.9rem;
+        }
+
+        .card-logo {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .balance {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+
+        /* Application Form Styles */
+        .application-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+
+        .application-section h2 {
+            color: #1a365d;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-option {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card-option:hover {
+            border-color: #4299e1;
+            background-color: #f7fafc;
+        }
+
+        .card-option.selected {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+
+        .application-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .submit-btn {
+            background-color: #1a365d;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid,
+            .application-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>My Cards</h1>
+            <p>Manage your debit and credit cards</p>
+        </div>
+        
+        <div class="cards-grid">
+            <!-- Debit Card -->
+            <div class="card">
+                <div class="card-type">Debit Card</div>
+                <i class="fab fa-cc-visa card-logo"></i>
+                <div class="chip"></div>
+                <div class="card-number">**** **** **** 4523</div>
+                <div class="balance">Balance: $3,450.00</div>
+                <div class="card-details">
+                    <div class="card-holder">John Doe</div>
+                    <div class="expiry">12/25</div>
+                </div>
+            </div>
+
+            <!-- Credit Card -->
+            <div class="card credit">
+                <div class="card-type">Credit Card</div>
+                <i class="fab fa-cc-mastercard card-logo"></i>
+                <div class="chip"></div>
+                <div class="card-number">**** **** **** 7890</div>
+                <div class="balance">Credit Limit: $10,000.00</div>
+                <div class="card-details">
+                    <div class="card-holder">John Doe</div>
+                    <div class="expiry">09/26</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Section -->
+        <div class="application-section">
+            <h2>Apply for a New Card</h2>
+            
+            <div class="card-options">
+                <div class="card-option">
+                    <h3>Classic Credit Card</h3>
+                    <p>0% APR for 12 months</p>
+                    <p>No annual fee</p>
+                </div>
+                <div class="card-option">
+                    <h3>Rewards Credit Card</h3>
+                    <p>2% cashback on all purchases</p>
+                    <p>$95 annual fee</p>
+                </div>
+                <div class="card-option">
+                    <h3>Premium Debit Card</h3>
+                    <p>Free international withdrawals</p>
+                    <p>Enhanced security features</p>
+                </div>
+            </div>
+
+            <form method="POST" class="application-form" action="{% url 'submit_card_request' %}">
+
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="first_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="last_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="date_of_birth" required>
+                </div>
+                <div class="form-group">
+                    <label for="employment">Card Type</label>
+                    <select id="card_type" name="card_type" required>
+                        <option value="">Select Type</option>
+                        <option value="debit">Debit Card</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="prepaid">Prepaid Card</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="employment">Employment Status</label>
+                    <select id="employment" name="employment_status" required>
+                        <option value="">Select Status</option>
+                        <option value="employed">Employed</option>
+                        <option value="self-employed">Self-Employed</option>
+                        <option value="student">Student</option>
+                        <option value="retired">Retired</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="income">Annual Income</label>
+                    <input type="number" id="income" name="annual_income" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ssn">Adhar Number</label>
+                    <input type="text" id="ssn" name="adhar_number" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="address">Home Address</label>
+                    <input type="text" id="address" name="home_address" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    
+</body>
+{% endblock %}
+</html>

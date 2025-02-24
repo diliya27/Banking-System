@@ -10,4 +10,6 @@ admin.site.register(Kseb_Billpay)
 admin.site.register(RechargePackage)
 admin.site.register(DTHBillPayment)
 admin.site.register(WaterBillPayment)
+admin.site.register(Loanmanagement)
+admin.site.register(CardRequest)
 

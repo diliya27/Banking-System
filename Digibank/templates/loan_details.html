@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% extends 'dashboard_user.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Details</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #1a237e;
+        }
+        .details {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #333;
+        }
+        .details p {
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #1a237e;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Loan Application Details</h2>
+        <div class="details">
+            <p><strong>Full Name:</strong> {{ loan.full_name }}</p>
+            <p><strong>Email:</strong> {{ loan.email }}</p>
+            <p><strong>Phone Number:</strong> {{ loan.phone_number }}</p>
+            <p><strong>Loan Type:</strong> {{ loan.loan_type }}</p>
+            <p><strong>Loan Amount:</strong> ${{ loan.loan_amount }}</p>
+            <p><strong>Loan Duration:</strong> {{ loan.loan_duration }} years</p>
+            <p><strong>Submitted At:</strong> {{ loan.submitted_at }}</p>
+        </div>
+        <button class="btn" onclick="window.print()">Print Form</button>
+    </div>
+</body>
+{% endblock content %}
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% extends 'dashboard_user.html'%}
+{% load static %}
+{% block content%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Request Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Card Request Details</h2>
+        <table>
+            <tr><td><strong>Full Name:</strong></td><td>{{ card_request.first_name }} {{ card_request.last_name }}</td></tr>
+            <tr><td><strong>Email:</strong></td><td>{{ card_request.email }}</td></tr>
+            <tr><td><strong>Phone Number:</strong></td><td>{{ card_request.phone_number }}</td></tr>
+            <tr><td><strong>Date of Birth:</strong></td><td>{{ card_request.date_of_birth }}</td></tr>
+            <tr><td><strong>Address:</strong></td><td>{{ card_request.home_address }}</td></tr>
+            <tr><td><strong>Card Type:</strong></td><td>{{ card_request.get_card_type_display }}</td></tr>
+            <tr><td><strong>Aadhar Number:</strong></td><td>{{ card_request.adhar_number }}</td></tr>
+            <tr><td><strong>Annual Income:</strong></td><td>₹{{ card_request.annual_income }}</td></tr>
+            <tr><td><strong>Employment Status:</strong></td><td>{{ card_request.get_employment_status_display }}</td></tr>
+            <tr><td><strong>Submitted At:</strong></td><td>{{ card_request.submitted_at }}</td></tr>
+        </table>
+        <a href="#" onclick="window.print()" class="btn">Print</a>
+    </div>
+</body>
+{% endblock %}
+</html>
