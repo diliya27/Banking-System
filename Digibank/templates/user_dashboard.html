@@ -225,10 +225,11 @@
         <div class="card-header">
             <div class="card-title">Total Balance</div>
         </div>
-        <div class="balance">$24,562.00</div>
-        <small>Account: **** **** **** 1234</small>
+        <div class="balance">₹{{ total }} </div>
+        <small>Account No:{{ customer_profile.account_number}}</small>
         {% if user.is_authenticated %}
         <h1>{{request.user}}</h1>
+       
         {% endif %}
     </div>
 
@@ -310,7 +311,7 @@
 </div>
 
 <!-- Support & Security -->
-<div class="cards-grid">
+{% comment %} <div class="cards-grid">
     <!-- Customer Support -->
     <div class="card">
         <div class="card-header">
@@ -356,6 +357,6 @@
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
 
 {% endblock content %}

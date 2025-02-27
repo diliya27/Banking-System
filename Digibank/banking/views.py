@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import send_mail
-
 from django.db import IntegrityError
 from smtplib import SMTPException
 import uuid
@@ -31,6 +30,7 @@ from .models import Kseb_Billpay
 from django.utils.timezone import make_aware
 from django.core.paginator import Paginator
 from datetime import datetime
+from django.contrib.auth import logout
 
 def index(request):
     return render(request, "index.html")
@@ -166,7 +166,22 @@ def login_view(request):
     return render(request, "login.html")
 
 def user_dashboard_view(request):
-    return render(request,"user_dashboard.html")
+    user = request.user
+
+    # Corrected status values
+    deposit_total = DepositTransaction.objects.filter(user=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+    total = deposit_total - transfer_total  
+    customer_profile = get_object_or_404(CustomerProfile, user=user)
+
+    context = {
+        "user": user,
+        "account": DepositTransaction.objects.filter(user=user, status="success"),
+        "customer_profile": customer_profile,
+        "total": total,
+    }
+    return render(request,"user_dashboard.html",context)
+
  
 
 def accounts_page(request):
@@ -232,11 +247,9 @@ def deposit_create_view(request):
 
 
 def create_razorpay_order_view(request, deposit_id):
-    try:
-        deposit = DepositTransaction.objects.get(id=deposit_id)
+   
+    deposit = DepositTransaction.objects.get(id=deposit_id)
        
-    except Exception as e:
-        print(e,'===================')    
 
     if deposit.status != "pending":
         return HttpResponse("Invalid deposit status.")
@@ -335,11 +348,7 @@ def account_transfer_view(request):
                 return HttpResponse("Invalid Transfer Amount")
         except ValueError:
             return HttpResponse("Invalid amount format")
-
-        # amount_in_paise = int(amount * 100)  
-
-       
-        # Save transfer history
+# Save transfer history
         transfer = TransferHistory.objects.create(
             sender=request.user,
             receiver_bank_name=receiver_bank_name,
@@ -1078,6 +1087,9 @@ def view_card_request(request, card_request_id):
     
     return render(request, 'view_card_request.html', {'card_request': card_request})
 
+def user_logout(request):
+    logout(request)  # Logs out the user
+    return redirect('index')
 
       
       

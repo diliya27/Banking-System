@@ -3,7 +3,7 @@
 {% load static %}
 <html lang="en">
   <head>
-    <title>Finances &mdash; Website Template by Colorlib</title>
+    <title>The Bank Of India</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -26,8 +26,17 @@
     <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
 
     <link rel="stylesheet" href="{% static 'css/aos.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function(){
+            emailjs.init("r6s-hc8rzbW7P81ZA"); // Your public key
+        })();
+    </script>
+    
+      
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
     
   </head>
   <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
@@ -59,14 +68,14 @@
         <div class="row align-items-center">
           
           <div class="col-6 col-xl-2">
-            <h1 class="mb-0 site-logo"><a href="index.html" class="h2 mb-0">Finances<span class="text-primary">.</span> </a></h1>
+            <h1 class="mb-0 site-logo"><a href="index.html" class="h2 mb-0">The Bank Of India<span class="text-primary"></span> </a></h1>
           </div>
 
           <div class="col-12 col-md-10 d-none d-xl-block">
             <nav class="site-navigation position-relative text-right" role="navigation">
 
               <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
-                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
                 <li class="has-children">
                   <a href="#about-section" class="nav-link">Services</a>
                   <ul class="dropdown">
@@ -74,25 +83,14 @@
                     <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
                     <li><a href="#faq-section" class="nav-link">FAQ</a></li>
                     <li><a href="#gallery-section" class="nav-link">Gallery</a></li>
-                    {% comment %} <li><a href="#services-section" class="nav-link">Services</a></li> {% endcomment %}
-                    <li><a href="#testimonials-section" class="nav-link">Testimonials</a></li>
-                    <li class="has-children">
-                      <a href="#">Services</a>
-                      <ul class="dropdown">
-                        <li><a href=""> </a></li>
-                        <li><a href="#">Menu Two</a></li>
-                        <li><a href="#">Menu Three</a></li>
-                      </ul>
-                    </li>
+                 
+                    
                   </ul>
                 </li>
                 
-                
-                <li><a href="#blog-section" class="nav-link">Blog</a></li>
+
                 <li><a href="#contact-section" class="nav-link">Contact</a></li>
-                <li class="social"><a href="#contact-section" class="nav-link"><span class="icon-facebook"></span></a></li>
-                <li class="social"><a href="#contact-section" class="nav-link"><span class="icon-twitter"></span></a></li>
-                <li class="social"><a href="#contact-section" class="nav-link"><span class="icon-linkedin"></span></a></li>
+                
               </ul>
             </nav>
           </div>

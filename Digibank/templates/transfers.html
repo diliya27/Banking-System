@@ -6,60 +6,66 @@
     <div class="row justify-content-center g-4">
         <!-- Deposit Button Card -->
         <div class="col-md-3">
-            <div class="card h-100 border-0 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
+            <div class="card h-100 border-0 shadow-sm hover-card d-flex flex-column">
+                <div class="card-body text-center p-4 d-flex flex-column">
                     <div class="feature-icon rounded-circle bg-primary bg-gradient mx-auto mb-3">
                         <i class="fas fa-money-bill-wave text-white"></i>
                     </div>
                     <h5 class="card-title mb-3">Deposit</h5>
                     <p class="card-text text-muted mb-4">Add funds to your account securely</p>
-                    <button class="btn btn-primary w-100 rounded-pill">
-                        <a href="{% url 'deposit' %}" class="text-white text-decoration-none">
-                            <i class="fas fa-plus-circle me-2"></i> Deposit Money
-                        </a>
-                    </button>
-                    
+                    <div class="mt-auto">
+                        <button class="btn btn-primary w-100 rounded-pill">
+                            <a href="{% url 'deposit' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-plus-circle me-2"></i> Deposit Money
+                            </a>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Transfer Button Card -->
         <div class="col-md-3">
-            <div class="card h-100 border-0 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
+            <div class="card h-100 border-0 shadow-sm hover-card d-flex flex-column">
+                <div class="card-body text-center p-4 d-flex flex-column">
                     <div class="feature-icon rounded-circle bg-success bg-gradient mx-auto mb-3">
                         <i class="fas fa-exchange-alt text-white"></i>
                     </div>
                     <h5 class="card-title mb-3">Transfer</h5>
                     <p class="card-text text-muted mb-4">Send money to other accounts</p>
-                    <button class="btn btn-success w-100 rounded-pill">
-                        <a href="{% url 'account_transfer' %}" class="text-white text-decoration-none">
-                           <i class="fas fa-paper-plane me-2"></i>Transfer Funds
-                        </a>
-                    </button>
+                    <div class="mt-auto">
+                        <button class="btn btn-success w-100 rounded-pill">
+                            <a href="{% url 'account_transfer' %}" class="text-white text-decoration-none">
+                               <i class="fas fa-paper-plane me-2"></i>Transfer Funds
+                            </a>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Statement Button Card -->
         <div class="col-md-3">
-            <div class="card h-100 border-0 shadow-sm hover-card">
-                <div class="card-body text-center p-4">
+            <div class="card h-100 border-0 shadow-sm hover-card d-flex flex-column">
+                <div class="card-body text-center p-4 d-flex flex-column">
                     <div class="feature-icon rounded-circle bg-info bg-gradient mx-auto mb-3">
                         <i class="fas fa-file-alt text-white"></i>
                     </div>
                     <h5 class="card-title mb-3">Statement</h5>
                     <p class="card-text text-muted mb-4">View your transaction history</p>
-                    <button class="btn btn-info w-100 rounded-pill text-white">
-                        <a href="{% url 'view_statement' %}" class="text-white text-decoration-none">
-                            <i class="fas fa-history me-2"></i>View Statement
-                        </a>
-                    </button>
+                    <div class="mt-auto">
+                        <button class="btn btn-info w-100 rounded-pill text-white">
+                            <a href="{% url 'view_statement' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-history me-2"></i>View Statement
+                            </a>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Add these to your head section -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
