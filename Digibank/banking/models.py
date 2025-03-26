@@ -306,37 +306,15 @@ class CardRequest(models.Model):
         return self.first_name
 
 
-
-# class DishPayment(models.Model):
-#     PAYMENT_STATUS_CHOICES = [
-#         ('Pending', 'Pending'),
-#         ('Completed', 'Completed'),
-#         ('Failed', 'Failed'),
-#     ]
-
-#     PAYMENT_MODE_CHOICES = [
-#         ('Net Banking', 'Net Banking'),
-#         ('UPI', 'UPI'),
-#         ('Credit Card', 'Credit Card'),
-#         ('Debit Card', 'Debit Card'),
-       
-#     ]
-
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     consumer_number = models.CharField(max_length=20, unique=True)  
-#     bill_number = models.CharField(max_length=30, unique=True)  
-#     bill_amount = models.IntegerField() 
-#     amount_paid = models.IntegerField()
-#     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
-#     payment_mode = models.CharField(max_length=20, choices=PAYMENT_MODE_CHOICES, null=True, blank=True)
-#     transaction_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-#     bank_name = models.CharField(max_length=100, null=True, blank=True)
-#     bank_transaction_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-#     payment_time = models.DateTimeField(auto_now_add=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     def __str__(self):
-#         return self.user.username
     
-    
+class BillHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    bill_type = models.CharField(max_length=50)
+    bill_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    transaction_id = models.CharField(max_length=50, null=True, blank=True)
+    payment_status = models.CharField(max_length=15)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username

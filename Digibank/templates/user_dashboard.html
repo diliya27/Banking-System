@@ -266,23 +266,21 @@
     <!-- Bills -->
     <div class="card">
         <div class="card-header">
-            <div class="card-title">Upcoming Bills</div>
+            <div class="card-title"> Bills History</div>
         </div>
         <div class="transaction-list">
+            {% for bill in bill_history %}
             <div class="transaction-item">
                 <div>
-                    <div>Electricity Bill</div>
-                    <small>Due in 3 days</small>
+                    <div>{{bill.bill_type}}</div>
+                    <small>{{bill.payment_date}}</small><br>
+                    <small>{{bill.transaction_id}}</small>
                 </div>
-                <button class="btn">Pay $85</button>
+                <h1>{{bill.bill_amount}}</h1>
             </div>
-            <div class="transaction-item">
-                <div>
-                    <div>Internet Bill</div>
-                    <small>Due in 5 days</small>
-                </div>
-                <button class="btn">Pay $65</button>
-            </div>
+            {% endfor %}    
+
+            
         </div>
     </div>
 

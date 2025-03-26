@@ -7,7 +7,7 @@ from smtplib import SMTPException
 import uuid
 from .models import CustomerProfile
 from django.contrib.auth import authenticate, login
-from .models import  DepositTransaction,TransferHistory,Kseb_Billpay,WaterBillPayment,DTHBillPayment, RechargePackage,Loanmanagement,CardRequest
+from .models import  DepositTransaction,TransferHistory,Kseb_Billpay,WaterBillPayment,DTHBillPayment, RechargePackage,Loanmanagement,CardRequest, BillHistory
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
@@ -189,15 +189,18 @@ def user_dashboard_view(request):
 
     # Corrected status values
     deposit_total = DepositTransaction.objects.filter(user=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
-    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0 
     total = deposit_total - transfer_total  
     customer_profile = get_object_or_404(CustomerProfile, user=user)
+
+    bill_history = BillHistory.objects.filter(user=user).order_by('-created_at')
 
     context = {
         "user": user,
         "account": DepositTransaction.objects.filter(user=user, status="success"),
         "customer_profile": customer_profile,
         "total": total,
+        "bill_history": bill_history
     }
     return render(request,"user_dashboard.html",context)
 
@@ -483,7 +486,7 @@ def view_statement(request):
         for w in water_view
     ]
     dth_list=[
-        {"type":"Debit","amount":db.bill_amount,"created_at":db.created_at,"status":db.payment_status}
+        {"type":"Debit","amount":db.amount,"created_at":db.created_at,"status":db.payment_status}
         for db in dth_view
     ]
 
@@ -745,6 +748,12 @@ def razorpay_kseb_callback(request):
 
         kseb_pay.save()
 
+        BillHistory.objects.create(user=kseb_pay.user, 
+                                   bill_type="KSEB",
+                                   transaction_id=razorpay_payment_id, 
+                                   bill_amount=kseb_pay.bill_amt, 
+                                   payment_status="success")
+
         
         return redirect("billpay")
 
@@ -859,6 +868,11 @@ def razorpay_water_callback(request):
         water_billpay.transaction_id = razorpay_payment_id
         water_billpay.signature = razorpay_signature
         water_billpay.save()
+        BillHistory.objects.create(user=water_billpay.user,
+                                   bill_type="Water",
+                                   transaction_id=razorpay_payment_id,
+                                   bill_amount=water_billpay.bill_amount,
+                                   payment_status="success")
         return redirect("billpay")
 
     except razorpay.errors.SignatureVerificationError:
@@ -976,6 +990,11 @@ def razorpay_dth_callback(request):
         dth_payment.payment_status = "success"
         dth_payment.transaction_id = razorpay_payment_id
         dth_payment.save()
+        BillHistory.objects.create(user=dth_payment.user,
+                                   bill_type="DTH",
+                                   transaction_id=razorpay_payment_id,
+                                   bill_amount=dth_payment.amount,
+                                   payment_status="success")
 
         return redirect("billpay")
 
