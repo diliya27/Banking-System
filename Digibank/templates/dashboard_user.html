@@ -113,9 +113,9 @@
                 <li class="nav-item {% if request.resolver_match.url_name == 'loan_management' %}active{% endif %} ">
                     <a href="{% url 'loan_management' %}" class="text-white">Loans</a>
                 </li>
-                <li class="nav-item {% if request.resolver_match.url_name == 'check_cibil_score' %}active{% endif %} ">
+                {% comment %} <li class="nav-item {% if request.resolver_match.url_name == 'check_cibil_score' %}active{% endif %} ">
                     <a href="{% url 'check_cibil_score' %}" class="text-white">Credit Score</a>
-                </li>
+                </li> {% endcomment %}
                 <li class="nav-item {% if request.resolver_match.url_name == 'submit_card_request' %}active{% endif %}">
                     <a href="{% url 'submit_card_request' %}" class="text-white">Cards</a>
                 </li>

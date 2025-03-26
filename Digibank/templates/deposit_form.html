@@ -9,13 +9,13 @@
                 <form action="" method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="account_number">Account Number:</label>
+                        {% comment %} <label for="account_number">Account Number:</label>
                         <input type="text" id="account_number" name="account_number" class="form-control" required>
                         <br>
 
                         <label for="ifsc_code">IFSC Code:</label>
                         <input type="text" id="ifsc_code" name="ifsc_code" class="form-control" required>
-                        <br>
+                        <br> {% endcomment %}
 
                         <label for="amount" class="form-label">Enter Amount</label>
                         <input type="number" class="form-control" id="amount" name="amount" required>

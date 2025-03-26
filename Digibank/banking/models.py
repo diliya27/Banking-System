@@ -19,8 +19,8 @@ class CustomerProfile(models.Model):
 
     ID_TYPE = [
         ('adhar_card', 'ADHAR_CARD'),
-        ('driver', 'DRIVER LICENECE'),
-        ('passport', 'PASSPORT'),
+        ('pan_card', 'PAN_CARD'),
+        
     ]
 
     EMPLOYMENT_STATUS = [
@@ -67,8 +67,8 @@ class DepositTransaction(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='deposit_user')  
-    account_number = models.CharField(max_length=20)  
-    ifsc_code = models.CharField(max_length=11)  
+    account_number = models.IntegerField(null=True,blank=True)  
+    ifsc_code = models.CharField(max_length=11,null=True,blank=True)  
     amount = models.DecimalField(max_digits=10, decimal_places=2)  
     currency = models.CharField(max_length=3, default='INR')
     order_id = models.CharField(max_length=500,null=True, unique=True) 
@@ -158,6 +158,7 @@ class Kseb_Billpay(models.Model):
     mode_of_payment = models.CharField(max_length=20, choices=PAYMENT_MODES, blank=True, null=True)
     account_number = models.BigIntegerField(blank=True, null=True)
     bank_name = models.CharField(max_length=50,blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username
@@ -192,7 +193,8 @@ class WaterBillPayment(models.Model):
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)  
     amount_paid = models.IntegerField(null=True, blank=True)  
     mode_of_payment = models.CharField(max_length=20, choices=PAYMENT_MODES) 
-    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='Pending')  
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)  
     
 
     def __str__(self):

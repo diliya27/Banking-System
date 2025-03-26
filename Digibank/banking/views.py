@@ -63,10 +63,17 @@ Thank you for choosing us!
     except SMTPException as e:
         print(f"Error sending email to {customer_email}: {e}")
 
+import re
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.db import IntegrityError, transaction
+from .models import CustomerProfile
+
 
 def create_account_view(request):
-    
     if request.method == "POST":
+        # Retrieve form data
         username = request.POST.get("username")
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
@@ -84,11 +91,12 @@ def create_account_view(request):
         id_num = request.POST.get("id_num")
         employment_status = request.POST.get("employment_status")
 
-        
+        # Validate passwords match
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
             return render(request, "create_account.html", {"data": request.POST})
 
+        # Check for existing username and email
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already taken.")
             return render(request, "create_account.html", {"data": request.POST})
@@ -97,43 +105,54 @@ def create_account_view(request):
             messages.error(request, "Email already registered.")
             return render(request, "create_account.html", {"data": request.POST})
 
+        # Validate ID number based on ID type
+        if id_type == 'adhar_card':
+            if not re.fullmatch(r'\d{12}', id_num):
+                messages.error(request, "Invalid Aadhaar number. It must be exactly 12 digits.")
+                return render(request, "create_account.html", {"data": request.POST})
+        elif id_type == 'pan_card':
+            if not re.fullmatch(r'[A-Z]{5}[0-9]{4}[A-Z]', id_num):
+                messages.error(request, "Invalid PAN number. It must be exactly 10 characters in the format ABCDE1234F.")
+                return render(request, "create_account.html", {"data": request.POST})
+        else:
+            messages.error(request, "Invalid ID type selected.")
+            return render(request, "create_account.html", {"data": request.POST})
+
+        # Attempt to create user and profile within a transaction
         try:
-            
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                password=password,  
-            )
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    password=password,
+                )
 
-            # Generate unique account number
-            account_number = generate_unique_account_number()
+                account_number = generate_unique_account_number()
 
-           
-            profile = CustomerProfile.objects.create(
-                user=user,
-                dob=dob,
-                gender=gender,
-                address=address,
-                city=city,
-                state=state,
-                zip_code=zip_code,
-                account_type=account_type,
-                account_number=account_number,
-                id_type=id_type,
-                id_num=id_num,
-                employment_status=employment_status,
-            )
+                profile = CustomerProfile.objects.create(
+                    user=user,
+                    dob=dob,
+                    gender=gender,
+                    address=address,
+                    city=city,
+                    state=state,
+                    zip_code=zip_code,
+                    account_type=account_type,
+                    account_number=account_number,
+                    id_type=id_type,
+                    id_num=id_num,
+                    employment_status=employment_status,
+                )
 
-            # Send account number via email
-            send_account_number_email(email, account_number)
+                send_account_number_email(email, account_number)
 
-            messages.success(
-                request,
-                f"Account created successfully. Your account number is: {profile.account_number}",
-            )
-            return redirect("index")
+                messages.success(
+                    request,
+                    f"Account created successfully. Your account number is: {profile.account_number}",
+                )
+                return redirect("index")
 
         except IntegrityError as e:
             messages.error(request, f"Database error: {e}")
@@ -437,7 +456,10 @@ def view_statement(request):
     # Fetch deposit and transfer history (only successful transactions)
     deposit_view = DepositTransaction.objects.filter(user=user,status="successful").order_by('-created_at')
     transfer_view = TransferHistory.objects.filter(sender=user,status="successful").order_by('-created_at')
-
+    kseb_view=Kseb_Billpay.objects.filter(user=user,payment_status="success")
+    water_view=WaterBillPayment.objects.filter(user=user,payment_status="success")
+    dth_view=DTHBillPayment.objects.filter(user=user,payment_status="success")
+    
     id = user.id
     print(id)
     data = CustomerProfile.objects.get(user_id=id)
@@ -452,13 +474,25 @@ def view_statement(request):
         {"type": "Debit", "amount": t.amount, "created_at": t.created_at, "status": t.status}
         for t in transfer_view
     ]
+    kseb_list=[
+        {"type":"Debit","amount":b.bill_amt,"created_at":b.created_at,"status":b.payment_status}
+        for b in kseb_view
+    ]
+    water_list=[
+        {"type":"Debit","amount":w.bill_amount,"created_at":w.created_at,"status":w.payment_status}
+        for w in water_view
+    ]
+    dth_list=[
+        {"type":"Debit","amount":db.bill_amount,"created_at":db.created_at,"status":db.payment_status}
+        for db in dth_view
+    ]
 
     # Merge both lists
-    transaction_history = sorted(deposit_list + transfer_list, key=lambda x: x["created_at"], reverse=True)
+    transaction_history = sorted(deposit_list + transfer_list+kseb_list+water_list+dth_list, key=lambda x: x["created_at"], reverse=True)
 
     # Calculate total credits and debits (only successful transactions)
     total_credits = sum(d["amount"] for d in deposit_list)
-    total_debits = sum(t["amount"] for t in transfer_list)
+    total_debits = sum(t["amount"] for t in transfer_list)+sum(k["amount"]for k in kseb_list)+sum(w["amount"]for w in water_list)+sum(db["amount"]for db in dth_list)
     balance = total_credits - total_debits
 
     context = {
@@ -568,14 +602,15 @@ def transaction_history(request):
     # Fetch filtered transactions
     deposit_view = DepositTransaction.objects.filter(user=user)
     transfer_view = TransferHistory.objects.filter(sender=user)
+    
 
     if start_date and end_date:
         deposit_view = deposit_view.filter(created_at__range=[start_date, end_date])
         transfer_view = transfer_view.filter(created_at__range=[start_date, end_date])
-
+        
     deposit_list = [{"Type": "Credit", "Amount": d.amount, "Created At": d.created_at, "Status": d.status} for d in deposit_view]
     transfer_list = [{"Type": "Debit", "Amount": t.amount, "Created At": t.created_at, "Status": t.status} for t in transfer_view]
-
+    
     transaction_history = sorted(deposit_list + transfer_list, key=lambda x: x["Created At"], reverse=True)
 
     # **Paginate results (10 transactions per page)**

@@ -200,6 +200,11 @@
                 </div>
             </div>
         </div>
+        {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
 
         <div class="form-container">
             <form method="post">
@@ -303,8 +308,8 @@
                             <select id="id_type" name="id_type" required>
                                 <option value="">Select ID Type</option>
                                 <option value="adhar_card">Adhar Card</option>
-                                <option value="driver">Driver License</option>
-                                <option value="passport">Passport</option>
+                                <option value="pan_card">Pan Card</option>
+                               
                             </select>
                         </div>
                         <div class="form-group">
@@ -358,6 +363,51 @@
             </form>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('id_type').addEventListener('change', function() {
+                var idNumInput = document.getElementById('id_num');
+                var idType = this.value;
+
+                if (idType === 'adhar_card') {
+                    idNumInput.maxLength = 12;
+                    idNumInput.pattern = '\\d{12}';
+                    idNumInput.placeholder = 'Enter 12-digit Aadhaar number';
+                } else if (idType === 'pan_card') {
+                    idNumInput.maxLength = 10;
+                    idNumInput.pattern = '[A-Z]{5}[0-9]{4}[A-Z]';
+                    idNumInput.placeholder = 'Enter 10-character PAN number';
+                } else {
+                    idNumInput.maxLength = '';
+                    idNumInput.pattern = '';
+                    idNumInput.placeholder = 'Enter ID number';
+                }
+            });
+        });
+    </script>
+
     {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('id_type').addEventListener('change', function() {
+                var idNumInput = document.getElementById('id_num');
+                var idType = this.value;
+
+                if (idType === 'adhar_card') {
+                    idNumInput.maxLength = 12;
+                    idNumInput.pattern = '\\d{12}';
+                    idNumInput.placeholder = 'Enter 12-digit Aadhaar number';
+                } else if (idType === 'pan_card') {
+                    idNumInput.maxLength = 10;
+                    idNumInput.pattern = '[A-Z]{5}[0-9]{4}[A-Z]';
+                    idNumInput.placeholder = 'Enter 10-character PAN number';
+                } else {
+                    idNumInput.maxLength = '';
+                    idNumInput.pattern = '';
+                    idNumInput.placeholder = 'Enter ID number';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
