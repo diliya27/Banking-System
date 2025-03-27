@@ -298,7 +298,7 @@ class CardRequest(models.Model):
     card_type = models.CharField(max_length=10, choices=CARD_TYPES)
     employment_status = models.CharField(max_length=20, choices=EMPLOYMENT_CHOICES)
     annual_income = models.DecimalField(max_digits=10, decimal_places=2)
-    adhar_number = models.CharField(max_length=20, unique=True)
+    adhar_number = models.CharField(max_length=20)
     home_address = models.TextField()
     submitted_at = models.DateTimeField(auto_now_add=True)  # Auto timestamp
 

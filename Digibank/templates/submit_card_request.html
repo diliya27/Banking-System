@@ -8,7 +8,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Banking Cards</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js">
+        function validateForm(event) {
+            let dob = document.getElementById("dob").value;
+            let cardType = document.getElementById("card_type").value;
+            let annualIncome = document.getElementById("income").value;
+            
+            if (!dob) {
+                alert("Please enter your date of birth.");
+                return false;
+            }
+
+            let today = new Date();
+            let birthDate = new Date(dob);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            let monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 18) {
+                alert("You must be at least 18 years old to apply for any card.");
+                event.preventDefault();
+                return false;
+            }
+
+            {% comment %} if (card_type === "credit" && annualIncome < 100000) {
+                alert("To apply for a Credit Card, you must have a minimum annual income of 100,000.");
+                event.preventDefault();
+                return false;
+            } {% endcomment %}
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -211,7 +242,7 @@
             <h1>My Cards</h1>
             <p>Manage your debit and credit cards</p>
         </div>
-        
+
         <div class="cards-grid">
             <!-- Debit Card -->
             <div class="card">
@@ -243,7 +274,7 @@
         <!-- Application Section -->
         <div class="application-section">
             <h2>Apply for a New Card</h2>
-            
+
             <div class="card-options">
                 <div class="card-option">
                     <h3>Classic Credit Card</h3>
@@ -263,13 +294,13 @@
             </div>
 
             <form method="POST" class="application-form" action="{% url 'submit_card_request' %}">
-
                 {% csrf_token %}
+
                 <div class="form-group">
                     <label for="firstName">First Name</label>
                     <input type="text" id="firstName" name="first_name" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="lastName">Last Name</label>
                     <input type="text" id="lastName" name="last_name" required>
@@ -289,8 +320,9 @@
                     <label for="dob">Date of Birth</label>
                     <input type="date" id="dob" name="date_of_birth" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="employment">Card Type</label>
+                    <label for="card_type">Card Type</label>
                     <select id="card_type" name="card_type" required>
                         <option value="">Select Type</option>
                         <option value="debit">Debit Card</option>
@@ -312,12 +344,12 @@
 
                 <div class="form-group">
                     <label for="income">Annual Income</label>
-                    <input type="number" id="income" name="annual_income" required>
+                    <input type="number" id="income" name="annual_income"  required>
                 </div>
 
                 <div class="form-group">
-                    <label for="ssn">Adhar Number</label>
-                    <input type="text" id="ssn" name="adhar_number" required>
+                    <label for="adhar_number">Aadhar Number</label>
+                    <input type="number" id="adhar_number" name="adhar_number" pattern="\d{12}" title="Enter a 12-digit Aadhar number" required>
                 </div>
 
                 <div class="form-group full-width">
@@ -331,8 +363,7 @@
             </form>
         </div>
     </div>
-    
-    
 </body>
+
 {% endblock %}
 </html>

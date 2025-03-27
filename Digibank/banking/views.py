@@ -184,38 +184,58 @@ def login_view(request):
 
     return render(request, "login.html")
 
+from django.db.models import Sum
+from django.shortcuts import render, get_object_or_404
+from .models import BillHistory, DepositTransaction, TransferHistory, CustomerProfile
+
 def user_dashboard_view(request):
     user = request.user
 
-    # Corrected status values
+    # Fetch Bill History and sum bill_amount (default to 0 if None)
+    Bill_history = BillHistory.objects.filter(user=user)
+    bill_debited = Bill_history.aggregate(Sum('bill_amount'))['bill_amount__sum'] or 0
+
+    # Fetch Deposit Transactions (only successful ones)
     deposit_total = DepositTransaction.objects.filter(user=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
-    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0 
+
+    # Fetch Transfer History and sum amounts (only successful ones)
+    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # Ensure transfer_total is not None before adding bill_debited
+    transfer_total += bill_debited  # No NoneType issue here
+
+    # Calculate total balance
     total = deposit_total - transfer_total  
+
+    # Fetch Customer Profile
     customer_profile = get_object_or_404(CustomerProfile, user=user)
 
+    # Fetch Bill History sorted by date
     bill_history = BillHistory.objects.filter(user=user).order_by('-created_at')
 
+    # Prepare context for template rendering
     context = {
         "user": user,
-        "account": DepositTransaction.objects.filter(user=user, status="success"),
+        "account": DepositTransaction.objects.filter(user=user, status="successful"),
         "customer_profile": customer_profile,
         "total": total,
         "bill_history": bill_history
     }
-    return render(request,"user_dashboard.html",context)
 
- 
+    return render(request, "user_dashboard.html", context)
 
 def accounts_page(request):
     user = request.user
+    Bill_history = BillHistory.objects.filter(user=user)
+    bill_debited = Bill_history.aggregate(Sum('bill_amount'))['bill_amount__sum'] or 0
 
     # Corrected status values
     deposit_total = DepositTransaction.objects.filter(user=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
-    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] +bill_debited or 0
     total = deposit_total - transfer_total  
-    print(deposit_total)
-    print(transfer_total)
-    print(total)
+    # print(deposit_total)
+    # print(transfer_total)
+    # print(total)
     # Handle case where CustomerProfile does not exist
     customer_profile = get_object_or_404(CustomerProfile, user=user)
 
@@ -1085,33 +1105,59 @@ def check_cibil_score(request):
 
 
 
+from datetime import datetime
+from .models import CardRequest
+
+
+
+def calculate_age(date_of_birth):
+    today = datetime.today().date()
+    dob = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return age
 @login_required
 def submit_card_request(request):
     if request.method == "POST":
+        user = request.user  # Ensure this is a valid user object
+        if not user.is_authenticated:
+            messages.error(request, "You must be logged in to submit a card request.")
+            return redirect('login')  # Redirect to login page if not authenticated
+
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone_number = request.POST.get('phone_number')
         date_of_birth = request.POST.get('date_of_birth')
         home_address = request.POST.get('home_address')
-        card_type = request.POST.get('card_type')
+        card_type = request.POST.get('card_type')  
         adhar_number = request.POST.get('adhar_number')
         annual_income = request.POST.get('annual_income')
         employment_status = request.POST.get('employment_status')
 
-      
-        if not all([first_name, last_name, email, phone_number, date_of_birth,
-                    home_address, card_type, adhar_number, annual_income, employment_status]):
-            messages.error(request, "All fields are required.")
-            return redirect('submit_card_request')
-        if not adhar_number.isdigit() or len(adhar_number) != 12:
-            messages.error(request, "Invalid Aadhar number. It should be 12 digits.")
+        # Convert income to integer
+        try:
+            annual_income = int(annual_income)
+        except ValueError:
+            messages.error(request, "Invalid annual income. Please enter a valid number.")
             return redirect('submit_card_request')
 
+        # Validate age
+        age = calculate_age(date_of_birth)
+        if age < 18:
+            messages.error(request, "You must be at least 18 years old to apply.")
+            return redirect('submit_card_request')
 
-       
+        # Validate Credit Card income requirement
+        if card_type == "credit" and (annual_income < 100000 or CardRequest.objects.filter(adhar_number=adhar_number).exists()):
+
+            messages.error(request, "Credit Card applicants must have a minimum annual income of 100,000.")
+            return redirect('submit_card_request')
+        
+        
+
+        # Create and save the request
         card_request = CardRequest.objects.create(
-            user=request.user,
+            user=user,  # Ensure the user is stored correctly
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -1124,15 +1170,11 @@ def submit_card_request(request):
             employment_status=employment_status
         )
         card_request.save()
-        print(card_request)
-        
 
         messages.success(request, "Card request submitted successfully!")
         return redirect('view_card_request', card_request_id=card_request.id)
 
-    # For GET requests, render the request form template
     return render(request, 'submit_card_request.html')
-
 
 
 @login_required
