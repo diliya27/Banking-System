@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Password</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .reset-container {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255,255,255,0.2);
+        }
+        .password-strength-meter {
+            height: 5px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .password-strength-meter-fill {
+            height: 100%;
+            width: 0;
+            background-color: #ff4136;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="reset-container w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Create New Password</h2>
+            <p class="mt-2 text-gray-600">Choose a strong, unique password</p>
+        </div>
+        
+        <form method="POST" class="space-y-4" id="passwordResetForm">
+            {% csrf_token %}
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">New Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="password" 
+                    required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Enter new password"
+                >
+                <div class="password-strength-meter mt-1">
+                    <div class="password-strength-meter-fill" id="passwordStrengthMeter"></div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500" id="passwordStrengthText">Password strength: Weak</p>
+            </div>
+            
+            <div>
+                <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input 
+                    type="password" 
+                    name="confirm-password" 
+                    id="confirm-password" 
+                    required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Confirm new password"
+                >
+                <p class="mt-1 text-xs text-red-500 hidden" id="passwordMatchError">Passwords do not match</p>
+            </div>
+            
+            <div>
+                <button 
+                    type="submit" 
+                    id="resetPasswordButton"
+                    disabled
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed"
+                >
+                    Reset Password
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center">
+            <p class="text-xs text-gray-500">
+                Return to <a href="#" class="text-indigo-600 hover:text-indigo-500">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const passwordStrengthMeter = document.getElementById('passwordStrengthMeter');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const passwordMatchError = document.getElementById('passwordMatchError');
+        const resetPasswordButton = document.getElementById('resetPasswordButton');
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]+/)) strength++;
+            if (password.match(/[A-Z]+/)) strength++;
+            if (password.match(/[0-9]+/)) strength++;
+            if (password.match(/[$@#&!]+/)) strength++;
+            return strength;
+        }
+
+        function updatePasswordStrength() {
+            const password = passwordInput.value;
+            const strength = calculatePasswordStrength(password);
+            
+            passwordStrengthMeter.style.width = `${strength * 20}%`;
+            
+            switch(strength) {
+                case 0:
+                case 1:
+                    passwordStrengthMeter.style.backgroundColor = '#ff4136';
+                    passwordStrengthText.textContent = 'Password strength: Weak';
+                    break;
+                case 2:
+                case 3:
+                    passwordStrengthMeter.style.backgroundColor = '#ff851b';
+                    passwordStrengthText.textContent = 'Password strength: Medium';
+                    break;
+                case 4:
+                case 5:
+                    passwordStrengthMeter.style.backgroundColor = '#2ecc40';
+                    passwordStrengthText.textContent = 'Password strength: Strong';
+                    break;
+            }
+            
+            validateForm();
+        }
+
+        function validateForm() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const strength = calculatePasswordStrength(password);
+
+            if (password !== confirmPassword) {
+                passwordMatchError.classList.remove('hidden');
+                resetPasswordButton.disabled = true;
+                resetPasswordButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                resetPasswordButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            } else {
+                passwordMatchError.classList.add('hidden');
+                
+                if (strength >= 3) {
+                    resetPasswordButton.disabled = false;
+                    resetPasswordButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    resetPasswordButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                } else {
+                    resetPasswordButton.disabled = true;
+                    resetPasswordButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                    resetPasswordButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        passwordInput.addEventListener('input', updatePasswordStrength);
+        confirmPasswordInput.addEventListener('input', validateForm);
+    </script>
+</body>
+</html>

@@ -231,7 +231,11 @@ def accounts_page(request):
 
     # Corrected status values
     deposit_total = DepositTransaction.objects.filter(user=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
-    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] +bill_debited or 0
+    # Fetch Transfer History and sum amounts (only successful ones)
+    transfer_total = TransferHistory.objects.filter(sender=user, status="successful").aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # Ensure transfer_total is not None before adding bill_debited
+    transfer_total += bill_debited  # No NoneType issue here
     total = deposit_total - transfer_total  
     # print(deposit_total)
     # print(transfer_total)
@@ -1187,8 +1191,70 @@ def user_logout(request):
     logout(request)  # Logs out the user
     return redirect('index')
 
-      
-      
+import socket
+from django.core.mail import send_mail, BadHeaderError
+from django.conf import settings
+
+from django.contrib import messages
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from .utils import custom_token_generator
+from .models import CustomerProfile
+
+User = get_user_model()  # Use Django's built-in user model for better compatibility
+
+def forgot(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = CustomerProfile.objects.get(user__email=email).user  # Get User from CustomerProfile
+            
+            token = custom_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            reset_url = request.build_absolute_uri(f'/reset/{uid}/{token}/')
+
+            try:
+                send_mail(
+                    'Password Reset Request',
+                    f'Click the link to reset your password: {reset_url}',
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, 'Password reset link has been sent to your email.')
+            except BadHeaderError:
+                messages.error(request, 'Invalid email header. Email could not be sent.')
+            except socket.timeout:
+                messages.error(request, 'The email server took too long to respond. Please try again later.')
+            
+            return redirect('forgot')
+        
+        except CustomerProfile.DoesNotExist:
+            messages.error(request, 'No account found with that email.')
+    
+    return render(request, 'forgot.html')
 
 
+def reset(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomerProfile.objects.get(user__pk=uid).user  # Get User from CustomerProfile
+        
+        if not custom_token_generator.check_token(user, token):  # Validate token
+            messages.error(request, 'Invalid or expired token.')
+            return redirect('forgot')  # Redirect to forgot page if token is invalid
 
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            user.set_password(password)  # Secure password hashing
+            user.save()
+            
+            messages.success(request, 'Your password has been reset successfully! Please login.')
+            return redirect('login')
+
+    except (CustomerProfile.DoesNotExist, ValueError, TypeError):
+        messages.error(request, 'Something went wrong. Try again.')
+    
+    return render(request, 'reset.html')

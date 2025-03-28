@@ -50,6 +50,8 @@ urlpatterns = [
     path("submit_card_request/",views.submit_card_request,name="submit_card_request"),
     path("view_card_request/<int:card_request_id>/", views.view_card_request, name="view_card_request"),
     path("logout/", views.user_logout, name="logout"),
+    path('forgot/', views.forgot, name='forgot'),
+    path('reset/<str:uidb64>/<str:token>/', views.reset, name='reset'),
 
 
     
