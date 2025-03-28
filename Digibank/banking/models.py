@@ -48,6 +48,7 @@ class CustomerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)  
     is_active = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)  # ✅ Field to block/unblock user
 
     def generate_account_number(self):
         uuid_num = str(uuid.uuid4().int)[:12]

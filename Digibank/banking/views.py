@@ -161,21 +161,29 @@ def create_account_view(request):
 
     return render(request, "create_account.html")
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import CustomerProfile
+
 def login_view(request):
     if request.method == "POST":
         account_number = request.POST.get("account_number")
         password = request.POST.get("password")
 
         try:
-            # Retrieve the user using the account number
             customer = CustomerProfile.objects.get(account_number=account_number)
-            user = customer.user  # Get the associated user
-            authenticated_user = authenticate(request, username=user.username, password=password)
+            user = customer.user  # Get associated user
 
+            if customer.is_blocked:  # ✅ Block login if user is blocked
+                messages.error(request, "Your account has been blocked. Contact support.")
+                return redirect("login")
+
+            authenticated_user = authenticate(request, username=user.username, password=password)
             if authenticated_user is not None:
                 login(request, authenticated_user)
                 messages.success(request, "Login successful!")
-                return redirect("user_dashboard")  
+                return redirect("user_dashboard")
             else:
                 messages.error(request, "Invalid password. Please try again.")
 
@@ -183,6 +191,7 @@ def login_view(request):
             messages.error(request, "Account number not found. Please check your details.")
 
     return render(request, "login.html")
+
 
 from django.db.models import Sum
 from django.shortcuts import render, get_object_or_404
